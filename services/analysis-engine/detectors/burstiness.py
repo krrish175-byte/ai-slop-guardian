@@ -5,7 +5,7 @@ from models.schemas import DetectorResult
 
 class BurstinessDetector(BaseDetector):
     name = "Burstiness"
-    weight = 0.10
+    weight = 0.05
 
     async def detect(self, content: str, repo_id: str) -> DetectorResult:
         # Split content into sentences

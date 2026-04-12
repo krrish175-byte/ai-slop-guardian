@@ -4,7 +4,7 @@ from models.schemas import DetectorResult
 
 class PatternDetector(BaseDetector):
     name = "Pattern"
-    weight = 0.25
+    weight = 0.20
 
     PHRASES = [
         r"\bI hope this (helps|finds you well|PR)\b",

@@ -39,5 +39,12 @@ async def analyze(request: AnalyzeRequest, db: Session = Depends(get_db)):
     )
     db.add(db_result)
     db.commit()
+
+    # 4. Add to DNA index for future cross-repo matching
+    from detectors.dna import DNADetector
+    for d in ensemble.detectors:
+        if isinstance(d, DNADetector):
+            d.add_to_index(request.content)
+            break
     
     return response

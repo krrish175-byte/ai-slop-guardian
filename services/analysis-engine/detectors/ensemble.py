@@ -5,6 +5,7 @@ from detectors.perplexity import PerplexityDetector
 from detectors.burstiness import BurstinessDetector
 from detectors.pattern import PatternDetector
 from detectors.embedding import EmbeddingDetector
+from detectors.dna import DNADetector
 from models.schemas import DetectorResult, AnalyzeResponse
 
 class EnsembleDetector:
@@ -13,7 +14,8 @@ class EnsembleDetector:
             PerplexityDetector(),
             BurstinessDetector(),
             PatternDetector(),
-            EmbeddingDetector()
+            EmbeddingDetector(),
+            DNADetector()
         ]
 
     async def analyze(self, content: str, repo_id: str) -> AnalyzeResponse:
