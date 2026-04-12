@@ -1,15 +1,17 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
 import { Overview } from "./pages/Overview";
+import { Burnout } from "./pages/Burnout";
 import { TrustGraph } from "./pages/TrustGraph";
-import { Shield, LayoutDashboard, ListFilter, Users, Settings, Bell } from "lucide-react";
+import { Shield, LayoutDashboard, ListFilter, Users, Settings, Bell, Zap, Activity } from "lucide-react";
 
 const Sidebar = () => {
   const location = useLocation();
   const menu = [
     { name: "Overview", path: "/", icon: <LayoutDashboard size={20} /> },
-    { name: "Trust Graph", path: "/trust", icon: <ListFilter size={20} /> },
-    { name: "Contributors", path: "/users", icon: <Users size={20} /> },
+    { name: "Trust Graph", path: "/trust", icon: <Users size={20} /> },
+    { name: "Burnout Center", path: "/burnout", icon: <Zap size={20} /> },
+    { name: "Live Queue", path: "/queue", icon: <ListFilter size={20} /> },
     { name: "Settings", path: "/settings", icon: <Settings size={20} /> },
   ];
 
@@ -51,13 +53,13 @@ const Sidebar = () => {
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex min-h-screen bg-bg-dark">
+    <div className="flex min-h-screen bg-[#020617] text-slate-50">
       <Sidebar />
-      <main className="flex-1 p-12 max-w-7xl">
+      <main className="flex-1 p-8 lg:p-12 max-w-7xl">
         <div className="flex justify-end mb-8">
-          <button className="p-2 relative glass rounded-full text-slate-400 hover:text-white transition-colors">
+          <button className="p-2 relative bg-white/5 rounded-full text-slate-400 hover:text-white transition-colors border border-white/10">
             <Bell size={20} />
-            <span className="absolute top-0 right-0 w-2 h-2 bg-brand-secondary rounded-full border-2 border-bg-dark"></span>
+            <span className="absolute top-0 right-0 w-2 h-2 bg-brand-secondary rounded-full"></span>
           </button>
         </div>
         {children}
@@ -72,9 +74,10 @@ function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Overview />} />
-          <Route path="/queue" element={<Overview />} /> {/* Placeholder */}
-          <Route path="/users" element={<Overview />} /> {/* Placeholder */}
-          <Route path="/settings" element={<Overview />} /> {/* Placeholder */}
+          <Route path="/trust" element={<TrustGraph />} />
+          <Route path="/burnout" element={<Burnout />} />
+          <Route path="/queue" element={<Overview />} />
+          <Route path="/settings" element={<Overview />} />
         </Routes>
       </Layout>
     </BrowserRouter>
