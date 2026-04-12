@@ -41,3 +41,36 @@ async def get_slop_rate(repo_id: str, db: Session = Depends(get_db)):
         "total_scans": total,
         "slop_count": slop_count
     }
+
+@router.get("/{repo_id:path}/burnout")
+async def get_burnout_stats(repo_id: str, db: Session = Depends(get_db)):
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    
+    # Query results for this repo in last 30 days
+    results = db.query(AnalysisResult).filter(
+        AnalysisResult.repo_id == repo_id,
+        AnalysisResult.timestamp >= thirty_days_ago
+    ).all()
+    
+    avg_review_time_minutes = 15
+    slop_prs_count = len([r for r in results if r.overall_score > 0.6])
+    hours_wasted = (slop_prs_count * avg_review_time_minutes) / 60
+    projected_annual = hours_wasted * (365/30)
+    
+    if projected_annual < 50:
+        risk = "low"
+    elif projected_annual < 200:
+        risk = "medium"
+    elif projected_annual < 500:
+        risk = "high"
+    else:
+        risk = "critical"
+        
+    return {
+        "hours_wasted_month": round(hours_wasted, 1),
+        "slop_prs_month": slop_prs_count,
+        "total_prs_month": len(results),
+        "projected_hours_annual": round(projected_annual, 1),
+        "burnout_risk": risk,
+        "repo_id": repo_id
+    }
