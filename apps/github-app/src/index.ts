@@ -3,9 +3,12 @@ import { setupLabels } from "./services/labelManager";
 import { handlePullRequest } from "./handlers/pullRequest";
 import { handleIssueOpened } from "./handlers/issues";
 import { handleCommentCreated } from "./handlers/comments";
+import { setupBadgeRoutes } from "./routes/badge";
 
 export default (app: Probot) => {
   app.log.info("AI Slop Guardian is starting up...");
+
+  setupBadgeRoutes(app);
 
   app.on("installation.created", async (context) => {
     const repos = context.payload.repositories || [];

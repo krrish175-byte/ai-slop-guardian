@@ -1,4 +1,4 @@
-from routers import analyze, index, health
+from routers import analyze, index, health, analytics
 from db.database import engine, Base, SessionLocal
 from db.models import SurgeEvent
 from pydantic import BaseModel
@@ -31,6 +31,7 @@ async def record_surge(record: SurgeRecord):
 app.include_router(health.router, prefix="/health", tags=["health"])
 app.include_router(analyze.router, prefix="/analyze", tags=["analyze"])
 app.include_router(index.router, prefix="/index-repo", tags=["index"])
+app.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 
 @app.get("/")
 async def root():
