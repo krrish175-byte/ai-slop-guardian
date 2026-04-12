@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import os
-import anthropic
+from groq import Groq
 import json
 
 router = APIRouter()
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 class ReviewRequest(BaseModel):
     diff: str
@@ -35,14 +35,16 @@ async def generate_review(request: ReviewRequest):
     """
     
     try:
-        response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
             max_tokens=1000,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}]
         )
         
-        data = json.loads(response.content[0].text)
+        data = json.loads(response.choices[0].message.content)
         return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

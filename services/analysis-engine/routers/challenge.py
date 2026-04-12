@@ -6,11 +6,11 @@ from pydantic import BaseModel
 import os
 import uuid
 from datetime import datetime, timedelta
-import anthropic
+from groq import Groq
 import json
 
 router = APIRouter()
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 class ChallengeRequest(BaseModel):
     diff: str
@@ -33,14 +33,17 @@ async def generate_challenge(request: ChallengeRequest):
     """
     
     try:
-        response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "You are a senior code reviewer."},
+                {"role": "user", "content": prompt}
+            ],
             max_tokens=500,
-            messages=[{"role": "user", "content": prompt}]
         )
         
         # Parse JSON from response
-        res_text = response.content[0].text
+        res_text = response.choices[0].message.content
         data = json.loads(res_text)
         questions = data.get("questions", [])
         
@@ -78,7 +81,7 @@ async def verify_challenge(request: AnswerRequest, db: Session = Depends(get_db)
     if challenge.status != "pending":
         return {"status": challenge.status, "message": "Challenge already processed"}
 
-    # Use Claude to score the answers
+    # Use Groq/Llama to score the answers
     questions_str = "\n".join([f"{i+1}. {q}" for i, q in enumerate(challenge.questions)])
     prompt = f"""You are a senior code reviewer. A contributor provided these answers to a comprehension challenge designed to verify they wrote the code.
     
@@ -93,13 +96,16 @@ async def verify_challenge(request: AnswerRequest, db: Session = Depends(get_db)
     """
     
     try:
-        response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "You are a senior code reviewer."},
+                {"role": "user", "content": prompt}
+            ],
             max_tokens=300,
-            messages=[{"role": "user", "content": prompt}]
         )
         
-        data = json.loads(response.content[0].text)
+        data = json.loads(response.choices[0].message.content)
         passed = data.get("passed", False)
         
         challenge.status = "passed" if passed else "failed"
