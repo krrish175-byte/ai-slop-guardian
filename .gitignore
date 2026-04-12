@@ -1,0 +1,20 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.pem
+
+# Node
+node_modules/
+dist/
+build/
+.turbo/
+
+# Data
+services/analysis-engine/data/
+*.db
+
+# OS
+.DS_Store
