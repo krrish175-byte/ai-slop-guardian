@@ -1,6 +1,7 @@
 import { Context } from "probot";
 import { analyzeContent } from "../services/analysisClient";
 import { CommentBuilder } from "../services/commentBuilder";
+import { handleSurge } from "./surgeHandler";
 
 const comments = new CommentBuilder();
 
@@ -10,6 +11,12 @@ export async function handlePullRequest(
   const pr = context.payload.pull_request;
   const { owner, repo } = context.repo();
   const octokit = context.octokit as any;
+
+  // 1. Surge Protection (only for opened PRs)
+  if (context.payload.action === "opened") {
+    const isSurge = await handleSurge(context as any);
+    if (isSurge) return;
+  }
 
   context.log.info("Processing PR #" + pr.number + ": " + pr.title);
 
