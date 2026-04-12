@@ -65,6 +65,12 @@ export async function handlePullRequest(
       owner, repo, issue_number: pr.number, body: report
     });
 
+    // 2. Comprehension Challenge (Feature 1)
+    if (result.overall_score > 0.65) {
+      const { triggerChallenge } = require("./comprehensionChallenge");
+      await triggerChallenge(context, diff, result.overall_score);
+    }
+
   } catch (err: any) {
     context.log.error("Error processing PR #" + pr.number + ": " + err.message);
   }

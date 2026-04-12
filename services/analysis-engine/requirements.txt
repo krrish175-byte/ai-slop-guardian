@@ -51,4 +51,5 @@ urllib3==2.6.3
 uvicorn==0.27.1
 yarl==1.22.0
 torch==2.1.0+cpu
+anthropic==0.25.0
 --extra-index-url https://download.pytorch.org/whl/cpu

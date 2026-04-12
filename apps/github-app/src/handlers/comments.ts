@@ -1,5 +1,6 @@
 import { Context } from "probot";
 import { analyzeContent } from "../services/analysisClient";
+import { handleChallengeAnswer } from "./comprehensionChallenge";
 
 export async function handleCommentCreated(context: Context<"issue_comment.created">) {
   const comment = context.payload.comment;
@@ -7,7 +8,16 @@ export async function handleCommentCreated(context: Context<"issue_comment.creat
   const { owner, repo } = context.repo();
   const octokit = context.octokit as any;
   const body = comment.body.trim();
-  if (!comment.user || comment.user.type === "Bot") return;
+
+  if (!comment.user) return;
+
+  // 1. Check for command answers
+  if (body.startsWith("/guardian answer")) {
+    await handleChallengeAnswer(context);
+    return;
+  }
+
+  if (comment.user.type === "Bot") return;
   if (body.startsWith("/guardian approve")) {
     await octokit.issues.addLabels({ owner, repo, issue_number: issue.number, labels: ["guardian-approved"] });
     await octokit.issues.createComment({ owner, repo, issue_number: issue.number, body: "Approved by maintainer." });
