@@ -65,7 +65,35 @@ export async function handlePullRequest(
       owner, repo, issue_number: pr.number, body: report
     });
 
-    // 2. Comprehension Challenge (Feature 1)
+    // 2. Smart Review Writer (Feature 3)
+    if (result.overall_score > 0.5) {
+      const axios = require("axios");
+      const ANALYSIS_ENGINE_URL = process.env.ANALYSIS_ENGINE_URL || "http://localhost:8000";
+      
+      try {
+        const reviewRes = await axios.post(`${ANALYSIS_ENGINE_URL}/review/generate`, {
+          diff,
+          pr_title: pr.title,
+          pr_body: pr.body || "",
+          repo_id: owner + "/" + repo,
+          slop_score: result.overall_score
+        });
+
+        const { review, verdict } = reviewRes.data;
+
+        await octokit.request("POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews", {
+          owner,
+          repo,
+          pull_number: pr.number,
+          body: "🤖 Guardian AI Review (draft for maintainer)\n\n" + review,
+          event: "COMMENT" // Keep as comment to avoid blocking merging automatically without human eyes
+        });
+      } catch (reviewErr: any) {
+        context.log.error(`Failed to generate smart review: ${reviewErr.message}`);
+      }
+    }
+
+    // 3. Comprehension Challenge (Feature 1)
     if (result.overall_score > 0.65) {
       const { triggerChallenge } = require("./comprehensionChallenge");
       await triggerChallenge(context, diff, result.overall_score);
