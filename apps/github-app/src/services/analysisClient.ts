@@ -24,10 +24,13 @@ export interface AnalyzeResponse {
 }
 
 export async function analyzeContent(req: AnalyzeRequest): Promise<AnalyzeResponse> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 25000);
   const response = await fetch(`${ANALYSIS_ENGINE_URL}/analyze/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(req),
+    signal: controller.signal,
   });
 
   if (!response.ok) {
@@ -35,5 +38,6 @@ export async function analyzeContent(req: AnalyzeRequest): Promise<AnalyzeRespon
     throw new Error(`Analysis engine error ${response.status}: ${text}`);
   }
 
+  clearTimeout(timeout);
   return response.json() as Promise<AnalyzeResponse>;
 }

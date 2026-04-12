@@ -17,7 +17,7 @@ export async function handleIssueOpened(context: Context<"issues.opened">) {
     });
     context.log.info("Issue score: " + result.overall_score + " -> " + result.label);
     if (result.label !== "human") {
-      await octokit.issues.addLabels({
+      await octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/labels", {
         owner, repo, issue_number: issue.number, labels: [result.label]
       });
     }
