@@ -1,0 +1,45 @@
+#!/usr/bin/env node
+
+import childProcess from 'node:child_process'
+import fs from 'node:fs'
+import path from 'node:path'
+
+/**
+ *
+ * @param {string} command
+ * @param {object} [options]
+ * @param {string} [options.cwd] - The working directory to execute the command in
+ * @returns {Promise<string>}
+ */
+async function execCommand(command, options = {}) {
+  return new Promise((resolve, reject) => {
+    childProcess.exec(command, options, (error, stdout, stderr) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(stdout.trim())
+      }
+    })
+  })
+}
+
+const npmCacheDirectory = await execCommand('npm config get cache')
+const npxCacheDirectory = path.resolve(npmCacheDirectory, '_npx')
+
+if (fs.existsSync(npxCacheDirectory)) {
+  await new Promise((resolve, reject) => {
+    fs.rm(npxCacheDirectory, { recursive: true, force: true }, (err) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve()
+      }
+    })
+  })
+
+  fs.mkdirSync(npxCacheDirectory, { recursive: true })
+
+  console.log(`Purged npx cache at ${npxCacheDirectory}`)
+} else {
+  console.log(`No npx cache found at ${npxCacheDirectory}`)
+}

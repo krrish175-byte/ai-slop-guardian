@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  analysis-engine:
+    build:
+      context: .
+      dockerfile: services/analysis-engine/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./services/analysis-engine/data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./data/ai_slop.db
+    restart: always
+
+  github-app:
+    build:
+      context: .
+      dockerfile: apps/github-app/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - ANALYSIS_ENGINE_URL=http://analysis-engine:8000
+    env_file:
+      - apps/github-app/.env
+    depends_on:
+      - analysis-engine
+    restart: always
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: apps/dashboard/Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_ANALYSIS_ENGINE_URL=http://localhost:8000
+    restart: always

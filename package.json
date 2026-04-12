@@ -1,0 +1,31 @@
+{
+  "name": "ai-slop-guardian",
+  "version": "1.0.0",
+  "description": "GitHub App to detect and label AI-generated slop in PRs, issues, and comments",
+  "main": "index.js",
+  "packageManager": "npm@11.1.0",
+  "workspaces": [
+    "apps/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "dev:app": "cd apps/github-app && npx ts-node src/server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krrish175-byte/ai-slop-guardian.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/krrish175-byte/ai-slop-guardian/issues"
+  },
+  "homepage": "https://github.com/krrish175-byte/ai-slop-guardian#readme",
+  "devDependencies": {
+    "turbo": "^2.9.6"
+  }
+}

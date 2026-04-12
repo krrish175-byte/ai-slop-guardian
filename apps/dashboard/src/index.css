@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #6366f1;
+  --color-brand-secondary: #ec4899;
+  --color-slop-high: #ef4444;
+  --color-slop-medium: #f59e0b;
+  --color-slop-low: #10b981;
+  --color-bg-dark: #0f172a;
+  --color-bg-card: #1e293b;
+  
+  --font-sans: "Inter", "system-ui", "sans-serif";
+}
+
+@layer base {
+  body {
+    @apply bg-bg-dark text-slate-100 font-sans;
+  }
+}
+
+.glass {
+  @apply bg-white/10 backdrop-blur-md border border-white/20;
+}
+
+.card-hover {
+  @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-brand-primary/20;
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-brand-secondary;
+}
