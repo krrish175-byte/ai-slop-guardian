@@ -7,7 +7,7 @@ from models.schemas import DetectorResult
 
 class EmbeddingDetector(BaseDetector):
     name = "Embedding"
-    weight = 0.25
+    weight = 0.20
 
     def __init__(self):
         self.model_id = "all-MiniLM-L6-v2"

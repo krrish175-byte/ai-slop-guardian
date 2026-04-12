@@ -6,7 +6,7 @@ from models.schemas import DetectorResult
 
 class PerplexityDetector(BaseDetector):
     name = "Perplexity"
-    weight = 0.20
+    weight = 0.15
 
     def __init__(self):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
