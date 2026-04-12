@@ -6,7 +6,7 @@ from models.schemas import DetectorResult
 
 class PerplexityDetector(BaseDetector):
     name = "Perplexity"
-    weight = 0.30
+    weight = 0.20
 
     def __init__(self):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -20,7 +20,7 @@ class PerplexityDetector(BaseDetector):
             self.model = AutoModelForCausalLM.from_pretrained(self.model_id).to(self.device)
             self.model.eval()
 
-    async def detect(self, content: str, repo_id: str) -> DetectorResult:
+    async def detect(self, content: str, repo_id: str, history: List[str] = []) -> DetectorResult:
         self._load_model()
         
         encodings = self.tokenizer(content, return_tensors="pt")

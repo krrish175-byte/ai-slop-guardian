@@ -35,6 +35,10 @@ export async function handlePullRequest(
 
     const content = pr.title + "\n\n" + (pr.body || "") + "\n\n--- DIFF ---\n" + diff;
 
+    // Fetch history for Ghost Author Detection (Feature 2)
+    const { fetchContributorHistory } = require("../services/contributorHistory");
+    const history = await fetchContributorHistory(context, owner, repo, pr.user.login);
+
     // Call analysis engine
     const result = await analyzeContent({
       content,
@@ -42,6 +46,7 @@ export async function handlePullRequest(
       repo_id: owner + "/" + repo,
       contributor_login: pr.user.login,
       contributor_id: pr.user.id,
+      history
     });
 
     context.log.info("PR #" + pr.number + " score: " + result.overall_score + " -> " + result.label);

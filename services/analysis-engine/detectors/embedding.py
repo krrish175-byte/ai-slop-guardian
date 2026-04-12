@@ -7,7 +7,7 @@ from models.schemas import DetectorResult
 
 class EmbeddingDetector(BaseDetector):
     name = "Embedding"
-    weight = 0.30
+    weight = 0.25
 
     def __init__(self):
         self.model_id = "all-MiniLM-L6-v2"
@@ -18,7 +18,7 @@ class EmbeddingDetector(BaseDetector):
         if self.model is None:
             self.model = SentenceTransformer(self.model_id)
 
-    async def detect(self, content: str, repo_id: str) -> DetectorResult:
+    async def detect(self, content: str, repo_id: str, history: List[str] = []) -> DetectorResult:
         self._load_model()
         
         # Check if FAISS index exists for this repo

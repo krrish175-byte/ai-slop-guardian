@@ -27,7 +27,7 @@ class DNADetector(BaseDetector):
             index = faiss.IndexFlatIP(384)
             return index
 
-    async def detect(self, content: str, repo_id: str) -> DetectorResult:
+    async def detect(self, content: str, repo_id: str, history: List[str] = []) -> DetectorResult:
         self._load_model()
         index = self._get_index()
         

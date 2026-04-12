@@ -7,7 +7,7 @@ class BurstinessDetector(BaseDetector):
     name = "Burstiness"
     weight = 0.05
 
-    async def detect(self, content: str, repo_id: str) -> DetectorResult:
+    async def detect(self, content: str, repo_id: str, history: List[str] = []) -> DetectorResult:
         # Split content into sentences
         sentences = [s.strip() for s in re.split(r'[.!?]\s+', content) if s.strip()]
         

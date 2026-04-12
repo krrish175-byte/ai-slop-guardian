@@ -6,6 +6,7 @@ export interface AnalyzeRequest {
   repo_id: string;
   contributor_login: string;
   contributor_id: number;
+  history?: string[];
 }
 
 export interface AnalyzeResponse {

@@ -7,6 +7,7 @@ class AnalyzeRequest(BaseModel):
     repo_id: str                    # "{owner}/{repo}"
     contributor_login: str
     contributor_id: int
+    history: List[str] = []
 
 class DetectorResult(BaseModel):
     name: str

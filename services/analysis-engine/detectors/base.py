@@ -6,7 +6,7 @@ class BaseDetector(ABC):
     weight: float
 
     @abstractmethod
-    async def detect(self, content: str, repo_id: str) -> DetectorResult:
+    async def detect(self, content: str, repo_id: str, history: List[str] = []) -> DetectorResult:
         """
         Analyze the content and return a DetectorResult.
         """

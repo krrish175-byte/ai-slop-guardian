@@ -6,6 +6,7 @@ from detectors.burstiness import BurstinessDetector
 from detectors.pattern import PatternDetector
 from detectors.embedding import EmbeddingDetector
 from detectors.dna import DNADetector
+from detectors.ghost_author import GhostAuthorDetector
 from models.schemas import DetectorResult, AnalyzeResponse
 
 class EnsembleDetector:
@@ -15,12 +16,13 @@ class EnsembleDetector:
             BurstinessDetector(),
             PatternDetector(),
             EmbeddingDetector(),
-            DNADetector()
+            DNADetector(),
+            GhostAuthorDetector()
         ]
 
-    async def analyze(self, content: str, repo_id: str) -> AnalyzeResponse:
+    async def analyze(self, content: str, repo_id: str, history: List[str] = []) -> AnalyzeResponse:
         # Run all detectors concurrently
-        tasks = [d.detect(content, repo_id) for d in self.detectors]
+        tasks = [d.detect(content, repo_id, history) for d in self.detectors]
         results: List[DetectorResult] = await asyncio.gather(*tasks)
         
         weighted_score = 0.0

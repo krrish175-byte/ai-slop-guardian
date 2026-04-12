@@ -4,7 +4,7 @@ from models.schemas import DetectorResult
 
 class PatternDetector(BaseDetector):
     name = "Pattern"
-    weight = 0.20
+    weight = 0.15
 
     PHRASES = [
         r"\bI hope this (helps|finds you well|PR)\b",
@@ -30,7 +30,7 @@ class PatternDetector(BaseDetector):
         r"\"\"\"[\s\S]{500,}\"\"\"",                                 # Massive docstrings
     ]
 
-    async def detect(self, content: str, repo_id: str) -> DetectorResult:
+    async def detect(self, content: str, repo_id: str, history: List[str] = []) -> DetectorResult:
         matched_phrases = []
         for pattern in self.PHRASES:
             if re.search(pattern, content, re.IGNORECASE):

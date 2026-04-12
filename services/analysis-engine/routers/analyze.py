@@ -13,8 +13,11 @@ scorer = ContributorScorer()
 @router.post("/", response_model=AnalyzeResponse)
 async def analyze(request: AnalyzeRequest, db: Session = Depends(get_db)):
     # 1. Run ensemble detection
-    # Note: Ensemble is initialized once, it should handle model loading internally or at startup
-    response = await ensemble.analyze(request.content, request.repo_id)
+    response = await ensemble.analyze(
+        content=request.content,
+        repo_id=request.repo_id,
+        history=request.history
+    )
     
     # 2. Run contributor scoring (placeholder logic - ideally Node.js sends the data)
     # For now, we use dummy data if not provided
