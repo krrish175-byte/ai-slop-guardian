@@ -1,13 +1,14 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
 import { Overview } from "./pages/Overview";
+import { TrustGraph } from "./pages/TrustGraph";
 import { Shield, LayoutDashboard, ListFilter, Users, Settings, Bell } from "lucide-react";
 
 const Sidebar = () => {
   const location = useLocation();
   const menu = [
     { name: "Overview", path: "/", icon: <LayoutDashboard size={20} /> },
-    { name: "PR Queue", path: "/queue", icon: <ListFilter size={20} /> },
+    { name: "Trust Graph", path: "/trust", icon: <ListFilter size={20} /> },
     { name: "Contributors", path: "/users", icon: <Users size={20} /> },
     { name: "Settings", path: "/settings", icon: <Settings size={20} /> },
   ];

@@ -1,4 +1,4 @@
-from routers import analyze, index, health, analytics, challenge, review
+from routers import analyze, index, health, analytics, challenge, review, trust
 from db.database import engine, Base, SessionLocal
 from db.models import SurgeEvent
 from pydantic import BaseModel
@@ -34,6 +34,7 @@ app.include_router(index.router, prefix="/index-repo", tags=["index"])
 app.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 app.include_router(challenge.router, prefix="/challenge", tags=["challenge"])
 app.include_router(review.router, prefix="/review", tags=["review"])
+app.include_router(trust.router, prefix="/trust", tags=["trust"])
 
 @app.get("/")
 async def root():
