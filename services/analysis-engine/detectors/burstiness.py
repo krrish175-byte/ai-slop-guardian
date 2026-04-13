@@ -1,3 +1,4 @@
+from typing import List, Optional, Dict, Any
 import statistics
 import re
 from detectors.base import BaseDetector

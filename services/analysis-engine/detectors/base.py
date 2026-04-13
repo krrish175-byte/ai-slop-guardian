@@ -1,3 +1,4 @@
+from typing import List
 from abc import ABC, abstractmethod
 from models.schemas import DetectorResult
 

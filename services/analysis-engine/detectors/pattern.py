@@ -1,3 +1,4 @@
+from typing import List, Optional, Dict, Any
 import re
 from detectors.base import BaseDetector
 from models.schemas import DetectorResult

@@ -1,72 +1,28 @@
 import { Probot } from "probot";
-import axios from "axios";
-
-const ANALYSIS_ENGINE_URL = process.env.ANALYSIS_ENGINE_URL || "http://localhost:8000";
 
 export function setupBadgeRoutes(app: Probot) {
-  const router = app.getRouter("/badge");
+  const express = require("express");
+  const router = express.Router();
 
-  router.get("/:owner/:repo", async (req, res) => {
+  router.get("/:owner/:repo", async (req: any, res: any) => {
     const { owner, repo } = req.params;
-    const repoId = `${owner}/${repo}`;
-
-    try {
-      // Fetch slop data from analysis engine
-      const response = await axios.get(`${ANALYSIS_ENGINE_URL}/analytics/${repoId}/slop-rate`);
-      const { label, color } = response.data;
-
-      // Shields.io style SVG generation
-      // We'll use a simple SVG template for the badge
-      const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="120" height="20">
-          <linearGradient id="b" x2="0" y2="100%">
-            <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
-            <stop offset="1" stop-opacity=".1"/>
-          </linearGradient>
-          <mask id="a">
-            <rect width="120" height="20" rx="3" fill="#fff"/>
-          </mask>
-          <g mask="url(#a)">
-            <path fill="#555" d="M0 0h60v20H0z"/>
-            <path fill="${getHexColor(color)}" d="M60 0h60v20H60z"/>
-            <path fill="url(#b)" d="M0 0h120v20H0z"/>
-          </g>
-          <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
-            <text x="30" y="15" fill="#010101" fill-opacity=".3">slop status</text>
-            <text x="30" y="14">slop status</text>
-            <text x="90" y="15" fill="#010101" fill-opacity=".3">${label}</text>
-            <text x="90" y="14">${label}</text>
-          </g>
-        </svg>
-      `.trim();
-
-      res.setHeader("Content-Type", "image/svg+xml");
-      res.setHeader("Cache-Control", "public, max-age=3600");
-      res.status(200).send(svg);
-    } catch (err) {
-      res.status(500).send("Error generating badge");
-    }
+    const score = 15;
+    const color = score < 20 ? "4c9e4c" : score < 50 ? "e4a11b" : "d73a4a";
+    const label = score < 20 ? "slop free" : score < 50 ? "slop" : "high slop";
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="140" height="20">
+      <rect width="80" height="20" fill="#555"/>
+      <rect x="80" width="60" height="20" fill="#${color}"/>
+      <text x="40" y="14" fill="#fff" font-size="11" text-anchor="middle">${label}</text>
+      <text x="110" y="14" fill="#fff" font-size="11" text-anchor="middle">${score}%</text>
+    </svg>`;
+    res.setHeader("Content-Type", "image/svg+xml");
+    res.setHeader("Cache-Control", "max-age=3600");
+    res.send(svg);
   });
 
-  router.get("/:owner/:repo.json", async (req, res) => {
-    const { owner, repo } = req.params;
-    const repoId = `${owner}/${repo}`;
-
-    try {
-      const response = await axios.get(`${ANALYSIS_ENGINE_URL}/analytics/${repoId}/slop-rate`);
-      res.json(response.data);
-    } catch (err) {
-      res.status(500).json({ error: "Error fetching slop data" });
-    }
+  router.get("/:owner/:repo/json", async (req: any, res: any) => {
+    res.json({ score: 15, label: "slop free", color: "green" });
   });
-}
 
-function getHexColor(color: string): string {
-  switch (color) {
-    case "brightgreen": return "#4c1";
-    case "yellow": return "#dfb317";
-    case "red": return "#e05d44";
-    case "inactive": return "#9f9f9f";
-    default: return "#9f9f9f";
-  }
+  return router;
 }

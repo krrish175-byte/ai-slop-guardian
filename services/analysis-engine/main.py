@@ -1,32 +1,20 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 from routers import analyze, index, health, analytics, challenge, review, trust
-from db.database import engine, Base, SessionLocal
-from db.models import SurgeEvent
-from pydantic import BaseModel
 
-# Create tables
-Base.metadata.create_all(bind=engine)
+app = FastAPI(title="AI Slop Guardian Analysis Engine", version="2.0.0")
 
-app = FastAPI(title="AI Slop Guardian Analysis Engine", version="1.0.0")
-
-class SurgeRecord(BaseModel):
-    repo_id: str
-    contributor_login: str
-    event_type: str
-
-@app.post("/surge")
-async def record_surge(record: SurgeRecord):
-    db = SessionLocal()
-    try:
-        event = SurgeEvent(
-            repo_id=record.repo_id,
-            contributor_login=record.contributor_login,
-            event_type=record.event_type
-        )
-        db.add(event)
-        db.commit()
-        return {"status": "recorded"}
-    finally:
-        db.close()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(health.router, prefix="/health", tags=["health"])
 app.include_router(analyze.router, prefix="/analyze", tags=["analyze"])
@@ -38,4 +26,4 @@ app.include_router(trust.router, prefix="/trust", tags=["trust"])
 
 @app.get("/")
 async def root():
-    return {"message": "AI Slop Guardian Analysis Engine API"}
+    return {"status": "AI Slop Guardian v2 running"}
