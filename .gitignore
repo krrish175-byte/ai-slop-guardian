@@ -18,3 +18,9 @@ services/analysis-engine/data/
 
 # OS
 .DS_Store
+.env
+*.env
+private-key.pem
+.env
+*.env
+private-key.pem
