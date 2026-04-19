@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://github.com/user-attachments/assets/7385f75d-7245-4ef1-9beb-9dd8d6c595cb" width="120" height="120" alt="AI Slop Guardian Logo"/>
+<img src="" width="120" height="120" alt="AI Slop Guardian Logo"/>
 
 # AI Slop Guardian
 
@@ -17,13 +17,13 @@ Automatically detect, label, and challenge AI-generated contributions before the
 
 ---
 
-## The Problem
+## The Problem       
 
-Open source is under attack — not by hackers, but by AI slop.
+Open source is under attack - not by hackers, but by AI slop.
 
 - **curl** reported 20%+ of bug reports are AI-generated garbage
 - **Excalidraw** saw 2× PR volume in a single quarter from vibe-coders
-- Maintainers are burning out reviewing PRs written by people who didn't even read the code
+- Maintainers are burning out reviewing PRs written by people who didn\'t even read the code
 
 The worst part? There was no tool to stop it. Until now.
 
@@ -34,7 +34,7 @@ The worst part? There was no tool to stop it. Until now.
 The moment a PR, issue, or comment is submitted to your repo, Guardian:
 
 1. **Analyzes** it using a 4-detector ML ensemble (perplexity, embeddings, patterns, burstiness)
-2. **Labels** it automatically — `ai-slop:high`, `ai-slop:medium`, `ai-slop:low`
+2. **Labels** it automatically - `ai-slop:high`, `ai-slop:medium`, `ai-slop:low`
 3. **Challenges** suspected AI authors with 3 questions only the real author could answer
 4. **Reviews** the code and drafts a review for you to post with one click
 5. **Protects** your repo from PR flood attacks (surge detection)
@@ -44,7 +44,7 @@ The moment a PR, issue, or comment is submitted to your repo, Guardian:
 ## Install in 30 Seconds
 
 1. [Install the GitHub App](https://github.com/apps/ai-slop-guardian) on your repo
-2. That's it. Guardian starts protecting your repo immediately.
+2. That\'s it. Guardian starts protecting your repo immediately.
 
 No config required. No API keys. No setup.
 
@@ -56,11 +56,26 @@ When a suspicious PR comes in, Guardian posts three things automatically:
 
 ### 1. Detection Report
 
-![Detection Report](https://github.com/user-attachments/assets/9d6f3e4e-4f1e-4363-8aeb-8f7a932d0c2e)
+AI Slop Guardian Report
+
+| Signal | Result |
+|--------|--------| 
+| AI probability | 73% 🔴 |
+| Perplexity score | 18.4 (low) |
+| Pattern matches | 4 phrases |
+| Style deviation | High |
+| Contributor trust | 45/100 |
 
 ### 2. Comprehension Challenge
 
-![Challenge](https://github.com/user-attachments/assets/6b8e3d2f-4e1e-4c3d-8e4d-6e4d580d3ce2)
+Guardian flagged this PR (73% AI probability).
+Please answer to verify authorship:
+
+What specific edge case does line 47 handle, and why did you choose this approach?
+Why did you use a recursive implementation instead of iterative here?
+What happens if the input array is empty, did you test this?
+
+Reply with /guardian answer [your answers] within 48 hours.
 
 ### 3. AI-Written Code Review (draft for maintainer)
 
@@ -77,11 +92,11 @@ Guardian uses a weighted ensemble of 4 detectors:
 | Detector | Weight | How it works |
 |----------|--------|--------------|
 | **Perplexity** | 35% | GPT-2 statistical analysis — AI text is unnaturally predictable |
-| **Embedding similarity** | 30% | Compares style against YOUR repo's own baseline |
+| **Embedding similarity** | 30% | Compares style against YOUR repo\'s own baseline |
 | **Pattern matching** | 25% | 20+ AI tell-tale phrases ("feel free to", "certainly", etc.) |
 | **Burstiness** | 10% | AI text has unnaturally uniform sentence lengths |
 
-What makes Guardian unique: it indexes your entire codebase and checks if new PRs match **your repo's** writing style. A PR that looks human in general might look alien to your specific project.
+What makes Guardian unique: it indexes your entire codebase and checks if new PRs match **your repo\'s** writing style. A PR that looks human in general might look alien to your specific project.
 
 ---
 
@@ -140,7 +155,7 @@ npm install
 cd services/analysis-engine && pip install -r requirements.txt
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and testing instructions.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 **Good first issues:** improving pattern detection phrases, adding new languages to the style indexer, improving the dashboard UI.
 
