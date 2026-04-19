@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="" width="120" height="120" alt="AI Slop Guardian Logo"/>
+<img src="https://github.com/user-attachments/assets/88e27b10-e5af-42bf-b7df-46b29593e7a2" width="120" height="120" alt="AI Slop Guardian Logo"/>
 
 # AI Slop Guardian
 
