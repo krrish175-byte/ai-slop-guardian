@@ -24,6 +24,14 @@ app.include_router(challenge.router, prefix="/challenge", tags=["challenge"])
 app.include_router(review.router, prefix="/review", tags=["review"])
 app.include_router(trust.router, prefix="/trust", tags=["trust"])
 
+
+@app.on_event("startup")
+async def warmup():
+    from detectors.ensemble import EnsembleDetector
+    detector = EnsembleDetector()
+    await detector.analyze("warmup text to preload models", "warmup/repo")
+    print("Models warmed up and ready")
+
 @app.get("/")
 async def root():
     return {"status": "AI Slop Guardian v2 running"}

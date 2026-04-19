@@ -12,6 +12,7 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "test": "turbo test",
+    "lint": "turbo lint",
     "dev:app": "cd apps/github-app && npx ts-node src/server.ts"
   },
   "repository": {

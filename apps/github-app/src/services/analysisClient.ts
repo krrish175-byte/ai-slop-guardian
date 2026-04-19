@@ -26,7 +26,7 @@ export interface AnalyzeResponse {
 
 export async function analyzeContent(req: AnalyzeRequest): Promise<AnalyzeResponse> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25000);
+  const timeout = setTimeout(() => controller.abort(), 60000);
   const response = await fetch(`${ANALYSIS_ENGINE_URL}/analyze/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

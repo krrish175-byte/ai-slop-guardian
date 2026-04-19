@@ -32,6 +32,7 @@ async def generate_review(request: ReviewRequest):
     {request.diff[:6000]}
     
     Return ONLY a JSON object: {{"review": "str", "verdict": "approve|request_changes|comment"}}
+    Ensure "review" is a detailed markdown string with at least 2 paragraphs of analysis.
     """
     
     try:
@@ -44,7 +45,15 @@ async def generate_review(request: ReviewRequest):
             max_tokens=1000,
         )
         
-        data = json.loads(response.choices[0].message.content)
+        content = response.choices[0].message.content.strip()
+        # Robust JSON extraction
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
+        
+        data = json.loads(content)
         return data
     except Exception as e:
+        print(f"Review Generation Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

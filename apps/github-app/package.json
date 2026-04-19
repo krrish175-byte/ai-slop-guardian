@@ -4,8 +4,9 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "tsc",
+    "lint": "tsc --noEmit",
     "dev": "ts-node src/server.ts",
     "start": "node dist/server.js"
   },
@@ -22,8 +23,11 @@
   },
   "devDependencies": {
     "@probot/adapter-github-actions": "^5.0.1",
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
+    "jest": "^30.3.0",
     "nodemon": "^3.1.14",
+    "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.2"
   }

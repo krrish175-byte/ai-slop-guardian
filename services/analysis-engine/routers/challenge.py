@@ -38,10 +38,18 @@ Return ONLY the JSON, nothing else."""
             max_tokens=500,
         )
         import json
-        text = response.choices[0].message.content.strip()
-        data = json.loads(text)
-        questions = data.get("questions", ["What does this code do?", "Why did you choose this approach?", "What edge cases did you consider?"])
+        content = response.choices[0].message.content.strip()
+        
+        # Robust JSON extraction
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
+            
+        data = json.loads(content)
+        questions = data.get("questions", [])
     except Exception as e:
+        print(f"Challenge Generation Error: {str(e)}")
         questions = [
             f"What specific problem does this PR solve in {req.repo_id}?",
             "Why did you choose this implementation approach over alternatives?",

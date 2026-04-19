@@ -1,0 +1,9 @@
+{
+  "name": "@ai-slop/analysis-engine",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "if [ -d 'venv' ]; then source venv/bin/activate && pytest; else pytest; fi",
+    "lint": "if [ -d 'venv' ]; then source venv/bin/activate && flake8 . --exclude=venv; else flake8 . --exclude=venv; fi"
+  }
+}
