@@ -42,6 +42,7 @@ async def generate_review(request: ReviewRequest):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
+            response_format={"type": "json_object"},
             max_tokens=1000,
         )
         
@@ -52,7 +53,7 @@ async def generate_review(request: ReviewRequest):
         elif "```" in content:
             content = content.split("```")[1].split("```")[0].strip()
         
-        data = json.loads(content)
+        data = json.loads(content, strict=False)
         return data
     except Exception as e:
         print(f"Review Generation Error: {str(e)}")

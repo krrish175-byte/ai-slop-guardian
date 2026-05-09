@@ -51,7 +51,6 @@ export async function handleChallengeAnswer(context: Context<"issue_comment.crea
   const comment = context.payload.comment;
   const prNumber = context.payload.issue.number;
   const { owner, repo } = context.repo();
-  const repoId = `${owner}/${repo}`;
 
   if (!comment.body.startsWith("/guardian answer")) return;
 
@@ -64,48 +63,10 @@ export async function handleChallengeAnswer(context: Context<"issue_comment.crea
   }
 
   try {
-    // 1. Find the pending challenge (proxy through engine because engine has the DB)
-    // We'll add a helper endpoint in Python to find challenge by repo/pr
-    const challengeRes = await axios.get(`${ANALYSIS_ENGINE_URL}/challenge/find/${repoId}/${prNumber}`);
-    const challengeId = challengeRes.data.challenge_id;
-
-    if (!challengeId) {
-        context.log.warn(`No pending challenge found for PR #${prNumber}`);
-        return;
-    }
-
-    // 2. Verify with engine
-    const verifyRes = await axios.post(`${ANALYSIS_ENGINE_URL}/challenge/verify`, {
-      challenge_id: challengeId,
-      answers
+    await context.octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
+      owner, repo, issue_number: prNumber, body: "✅ Thank you for your response. A maintainer will review your answers."
     });
-
-    const { passed, reason } = verifyRes.data;
-
-    if (passed) {
-      await context.octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
-        owner, repo, issue_number: prNumber, body: `✅ **Authorship Verified.**\n${reason}`
-      });
-      await context.octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/labels", {
-        owner, repo, issue_number: prNumber, labels: ["human-verified"]
-      });
-      // Optionally remove ai-slop labels
-      await context.octokit.request("DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels/{name}", {
-        owner, repo, issue_number: prNumber, name: "ai-slop:high"
-      }).catch(() => {});
-      await context.octokit.request("DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels/{name}", {
-        owner, repo, issue_number: prNumber, name: "ai-slop:medium"
-      }).catch(() => {});
-    } else {
-      await context.octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
-        owner, repo, issue_number: prNumber, body: `❌ **Authorship Verification Failed.**\n${reason}\nEscalating to manual review.`
-      });
-      await context.octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/labels", {
-        owner, repo, issue_number: prNumber, labels: ["ai-slop:high"]
-      });
-    }
-
   } catch (err: any) {
-    context.log.error(`Failed to verify answer: ${err.message}`);
+    context.log.error(`Failed to post answer response: ${err.message}`);
   }
 }

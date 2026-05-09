@@ -58,6 +58,7 @@ export async function handlePullRequest(
     });
 
     if (result.overall_score > 0.5) {
+      context.log.info(`Generating smart review for PR #${pr.number}...`);
       try {
         const reviewRes = await fetch(ANALYSIS_ENGINE_URL + "/review/generate", {
           method: "POST",
@@ -70,13 +71,30 @@ export async function handlePullRequest(
             slop_score: result.overall_score
           })
         });
-        const reviewData = await reviewRes.json() as any;
+        context.log.info(`Smart review API response status: ${reviewRes.status}`);
+
+        let reviewData;
+        try {
+            reviewData = await reviewRes.json() as any;
+        } catch (e: any) {
+            throw new Error(`Failed to parse review JSON: ${e.message}`);
+        }
+        
         const review = reviewData.review || "";
         
         if (review.trim()) {
+          const reviewComment = [
+              "## 🤖 Guardian AI Review",
+              "",
+              review,
+              "",
+              "---",
+              "*This review was auto-generated. A human maintainer should verify before acting on it.*"
+          ].join("\n");
+          
           await octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
             owner, repo, issue_number: pr.number,
-            body: "## Guardian AI Review\n\n" + review
+            body: reviewComment
           });
           context.log.info("Smart review posted on PR #" + pr.number);
         } else {
@@ -87,19 +105,37 @@ export async function handlePullRequest(
       }
     }
 
-    if (result.overall_score > 0.65) {
+    if (result.overall_score > 0.60) {
+      context.log.info(`Generating comprehension challenge for PR #${pr.number} (score: ${result.overall_score})...`);
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+
         const challengeRes = await fetch(ANALYSIS_ENGINE_URL + "/challenge/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
           body: JSON.stringify({
             diff: diff.substring(0, 2000),
             pr_title: pr.title,
             repo_id: owner + "/" + repo
           })
         });
-        const challenge = await challengeRes.json() as any;
+        clearTimeout(timeoutId);
+        context.log.info(`Challenge API response status: ${challengeRes.status}`);
+
+        let challenge;
+        try {
+            challenge = await challengeRes.json() as any;
+        } catch (e: any) {
+            throw new Error(`Failed to parse challenge JSON: ${e.message}`);
+        }
+        
         const questions = challenge.questions || [];
+        if (questions.length === 0) {
+            throw new Error("No questions returned from challenge endpoint");
+        }
+
         const challengeComment = [
           "## Comprehension Challenge",
           "",
@@ -118,6 +154,18 @@ export async function handlePullRequest(
         context.log.info("Comprehension challenge posted on PR #" + pr.number);
       } catch (challengeErr: any) {
         context.log.error("Failed to post challenge: " + challengeErr.message);
+        const fallbackComment = [
+          "## 🧠 Authorship Verification Required",
+          `This PR was flagged as potentially AI-generated (${Math.round(result.overall_score * 100)}% probability).`,
+          "Please describe in a comment:",
+          "1. What problem does this PR solve?",
+          "2. Walk us through your implementation approach",
+          "3. What did you test and how?"
+        ].join("\n");
+        await octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
+          owner, repo, issue_number: pr.number, body: fallbackComment
+        });
+        context.log.info("Fallback comprehension challenge posted on PR #" + pr.number);
       }
     }
 

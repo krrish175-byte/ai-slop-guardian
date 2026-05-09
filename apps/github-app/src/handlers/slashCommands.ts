@@ -7,6 +7,7 @@ export async function handleSlashCommand(context: Context<"issue_comment.created
   const comment = context.payload.comment;
   const { owner, repo, issue_number } = context.issue();
   const octokit = context.octokit as any;
+  const ANALYSIS_ENGINE_URL = process.env.ANALYSIS_ENGINE_URL || "http://localhost:8000";
   
   if (!comment.body.startsWith("/guardian")) return;
 
@@ -14,19 +15,13 @@ export async function handleSlashCommand(context: Context<"issue_comment.created
   try {
     if (!comment.user) return;
     
-    const { data: permission } = await octokit.repos.getCollaboratorPermissionLevel({
+    const { data: permission } = await octokit.request("GET /repos/{owner}/{repo}/collaborators/{username}/permission", {
       owner,
       repo,
       username: comment.user.login,
     });
 
-    if (permission.permission !== "admin" && permission.permission !== "write") {
-      await octokit.issues.createComment({
-        owner,
-        repo,
-        issue_number,
-        body: `🚫 @${comment.user.login}, you do not have permission to run AI Slop Guardian commands.`,
-      });
+    if (permission.permission === "read" || permission.permission === "none") {
       return;
     }
   } catch (err) {
@@ -38,12 +33,15 @@ export async function handleSlashCommand(context: Context<"issue_comment.created
 
   switch (command) {
     case "approve":
-      await octokit.issues.addLabels({ owner, repo, issue_number, labels: ["guardian-approved"] });
-      await octokit.issues.createComment({
+      await octokit.request("DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels/{name}", { owner, repo, issue_number, name: "ai-slop:high" }).catch(() => {});
+      await octokit.request("DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels/{name}", { owner, repo, issue_number, name: "ai-slop:medium" }).catch(() => {});
+      await octokit.request("DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels/{name}", { owner, repo, issue_number, name: "ai-slop:low" }).catch(() => {});
+      await octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/labels", { owner, repo, issue_number, labels: ["guardian-approved"] });
+      await octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
         owner,
         repo,
         issue_number,
-        body: `✅ PR approved by @${comment.user.login}. Labels updated.`,
+        body: `✅ PR approved by maintainer`,
       });
       break;
 
@@ -51,26 +49,34 @@ export async function handleSlashCommand(context: Context<"issue_comment.created
       const targetUser = args[2]?.replace("@", "");
       if (targetUser) {
         await whitelist.addToList(targetUser);
-        await octokit.issues.createComment({
+        await octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
           owner,
           repo,
           issue_number,
-          body: `🛡️ @${targetUser} has been added to the trusted contributor whitelist by @${comment.user.login}.`,
+          body: `✅ @${targetUser} has been whitelisted`,
         });
       }
       break;
 
     case "status":
-      await octokit.issues.createComment({
-        owner,
-        repo,
-        issue_number,
-        body: `📊 **AI Slop Guardian Status**\n- Service: Online\n- Threshold: 72%\n- Mode: Label & Triage`,
-      });
+      try {
+        const statusRes = await fetch(`${ANALYSIS_ENGINE_URL}/analytics/${owner}/${repo}/slop-rate`);
+        const statusData = await statusRes.json() as any;
+        await octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
+          owner,
+          repo,
+          issue_number,
+          body: `📊 **AI Slop Guardian Status**\n- Total PRs scanned: ${statusData.total_scans}\n- Avg Score: ${statusData.score}%\n- Threshold: 60%`,
+        });
+      } catch (err: any) {
+        await octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
+          owner, repo, issue_number, body: "Error fetching status: " + err.message
+        });
+      }
       break;
 
     case "scan":
-      await octokit.issues.createComment({
+      await octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
         owner,
         repo,
         issue_number,
@@ -79,7 +85,7 @@ export async function handleSlashCommand(context: Context<"issue_comment.created
       break;
 
     default:
-      await octokit.issues.createComment({
+      await octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
         owner,
         repo,
         issue_number,
