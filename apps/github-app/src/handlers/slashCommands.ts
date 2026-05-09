@@ -1,8 +1,6 @@
 import { Context } from "probot";
-import { LabelManager } from "../services/labelManager";
 import { WhitelistManager } from "../services/whitelist";
 
-const labels = new LabelManager();
 const whitelist = new WhitelistManager();
 
 export async function handleSlashCommand(context: Context<"issue_comment.created">) {
@@ -40,7 +38,7 @@ export async function handleSlashCommand(context: Context<"issue_comment.created
 
   switch (command) {
     case "approve":
-      await labels.applyLabel(context, "guardian-approved");
+      await octokit.issues.addLabels({ owner, repo, issue_number, labels: ["guardian-approved"] });
       await octokit.issues.createComment({
         owner,
         repo,
@@ -68,6 +66,15 @@ export async function handleSlashCommand(context: Context<"issue_comment.created
         repo,
         issue_number,
         body: `📊 **AI Slop Guardian Status**\n- Service: Online\n- Threshold: 72%\n- Mode: Label & Triage`,
+      });
+      break;
+
+    case "scan":
+      await octokit.issues.createComment({
+        owner,
+        repo,
+        issue_number,
+        body: `🔄 Re-analyzing PR... (Note: Full PR scan is coming soon in v2)`,
       });
       break;
 

@@ -1,12 +1,11 @@
 import { Context } from "probot";
 import { analyzeContent } from "../services/analysisClient";
 import { handleChallengeAnswer } from "./comprehensionChallenge";
+import { handleSlashCommand } from "./slashCommands";
 
 export async function handleCommentCreated(context: Context<"issue_comment.created">) {
   const comment = context.payload.comment;
-  const issue = context.payload.issue;
   const { owner, repo } = context.repo();
-  const octokit = context.octokit as any;
   const body = comment.body.trim();
 
   if (!comment.user) return;
@@ -17,17 +16,17 @@ export async function handleCommentCreated(context: Context<"issue_comment.creat
     return;
   }
 
+  // 2. Delegate other /guardian commands to slashCommands
+  if (body.startsWith("/guardian")) {
+    if (comment.user.type !== "Bot") {
+      await handleSlashCommand(context);
+    }
+    return;
+  }
+
   if (comment.user.type === "Bot") return;
-  if (body.startsWith("/guardian approve")) {
-    await octokit.issues.addLabels({ owner, repo, issue_number: issue.number, labels: ["guardian-approved"] });
-    await octokit.issues.createComment({ owner, repo, issue_number: issue.number, body: "Approved by maintainer." });
-    return;
-  }
-  if (body.startsWith("/guardian status")) {
-    await octokit.issues.createComment({ owner, repo, issue_number: issue.number, body: "AI Slop Guardian is active on " + owner + "/" + repo });
-    return;
-  }
-  if (!comment.user) return;
+
+  // 3. Normal comment analysis
   try {
     const result = await analyzeContent({
       content: body,

@@ -1,9 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleSlashCommand = handleSlashCommand;
-const labelManager_1 = require("../services/labelManager");
 const whitelist_1 = require("../services/whitelist");
-const labels = new labelManager_1.LabelManager();
 const whitelist = new whitelist_1.WhitelistManager();
 async function handleSlashCommand(context) {
     const comment = context.payload.comment;
@@ -37,7 +35,7 @@ async function handleSlashCommand(context) {
     const command = args[1];
     switch (command) {
         case "approve":
-            await labels.applyLabel(context, "guardian-approved");
+            await octokit.issues.addLabels({ owner, repo, issue_number, labels: ["guardian-approved"] });
             await octokit.issues.createComment({
                 owner,
                 repo,
@@ -63,6 +61,14 @@ async function handleSlashCommand(context) {
                 repo,
                 issue_number,
                 body: `📊 **AI Slop Guardian Status**\n- Service: Online\n- Threshold: 72%\n- Mode: Label & Triage`,
+            });
+            break;
+        case "scan":
+            await octokit.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body: `🔄 Re-analyzing PR... (Note: Full PR scan is coming soon in v2)`,
             });
             break;
         default:
