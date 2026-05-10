@@ -5,7 +5,13 @@ from groq import Groq
 import json
 
 router = APIRouter()
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+
+def _get_client() -> Groq | None:
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        return None
+    return Groq(api_key=api_key)
 
 
 class ReviewRequest(BaseModel):
@@ -18,6 +24,12 @@ class ReviewRequest(BaseModel):
 
 @router.post("/generate")
 async def generate_review(request: ReviewRequest):
+    client = _get_client()
+    if client is None:
+        raise HTTPException(
+            status_code=503,
+            detail="GROQ_API_KEY is not configured",
+        )
     system_prompt = (
         "You are a senior code reviewer for an open source project."
     )
