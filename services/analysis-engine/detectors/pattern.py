@@ -1,7 +1,8 @@
-from typing import List, Optional, Dict, Any
+from typing import List
 import re
 from detectors.base import BaseDetector
 from models.schemas import DetectorResult
+
 
 class PatternDetector(BaseDetector):
     name = "Pattern"
@@ -17,8 +18,10 @@ class PatternDetector(BaseDetector):
         r"\bGreat question\b",
         r"\bAs an AI\b",
         r"\bAs a language model\b",
-        r"\bThis (commit|PR|change) (introduces|implements|adds|updates|refactors)\b",
-        r"\bThis (function|method|class) (is responsible for|handles|manages)\b",
+        r"\bThis (commit|PR|change) (introduces|implements|adds|updates|"
+        r"refactors)\b",
+        r"\bThis (function|method|class) (is responsible for|handles|"
+        r"manages)\b",
         r"\bEnsure[sd]? that\b",
         r"\bIn (summary|conclusion|order to)\b",
         r"\bIt's worth (noting|mentioning)\b",
@@ -41,30 +44,35 @@ class PatternDetector(BaseDetector):
     ]
 
     CODE_PATTERNS = [
-        r"#(?: This| The)? (?:function|method|class|code) .{0,50}",  # Over-commented
-        r"#(?: TODO| FIXME| NOTE): .{0,100}",                       # Generic todos
-        r"\"\"\"[\s\S]{500,}\"\"\"",                                 # Massive docstrings
+        # Over-commented
+        r"#(?: This| The)? (?:function|method|class|code) .{0,50}",
+        # Generic todos
+        r"#(?: TODO| FIXME| NOTE): .{0,100}",
+        # Massive docstrings
+        r"\"\"\"[\s\S]{500,}\"\"\"",
     ]
 
-    async def detect(self, content: str, repo_id: str, history: List[str] = []) -> DetectorResult:
+    async def detect(
+        self, content: str, repo_id: str, history: List[str] = []
+    ) -> DetectorResult:
         matched_phrases = []
         for pattern in self.PHRASES:
             if re.search(pattern, content, re.IGNORECASE):
                 matched_phrases.append(pattern)
-        
+
         matched_code = []
         for pattern in self.CODE_PATTERNS:
             if re.search(pattern, content):
                 matched_code.append(pattern)
-        
+
         total_matches = len(matched_phrases) + len(matched_code)
         # Score calculation: Normalize based on total patterns.
         # This is a heuristic: more than 4 matches is high probability.
         score = min(1.0, total_matches / 5.0)
-        
+
         signals = [f"Matched AI phrase pattern: {p}" for p in matched_phrases]
         signals += [f"Matched AI code pattern: {p}" for p in matched_code]
-        
+
         return DetectorResult(
             name=self.name,
             score=round(score, 2),
