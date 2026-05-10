@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AlertTriangle, Clock, TrendingUp, Calendar, Zap, Share2 } from "lucide-react";
+import { AlertTriangle, Clock, TrendingUp, Zap, Share2 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface BurnoutStats {

@@ -1,10 +1,11 @@
-from typing import List, Optional, Dict, Any
+from typing import List
 import os
 import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
 from detectors.base import BaseDetector
 from models.schemas import DetectorResult
+
 
 class DNADetector(BaseDetector):
     name = "DNA"
@@ -28,13 +29,16 @@ class DNADetector(BaseDetector):
             index = faiss.IndexFlatIP(384)
             return index
 
-    async def detect(self, content: str, repo_id: str, history: List[str] = []) -> DetectorResult:
+    async def detect(
+        self, content: str, repo_id: str, history: List[str] = []
+    ) -> DetectorResult:
         self._load_model()
         index = self._get_index()
-        
+
         if index.ntotal == 0:
             # First run, nothing to match against
-            # We'll need to add THIS content to the index AFTER the whole analysis is done, 
+            # We'll need to add THIS content to the index AFTER the whole
+            # analysis is done,
             # but for now we just return neutral.
             return DetectorResult(
                 name=self.name,
@@ -46,23 +50,38 @@ class DNADetector(BaseDetector):
         # Embed query content
         query_vector = self.model.encode([content])
         faiss.normalize_L2(query_vector)
-        
+
         # Search for nearest neighbors
         k = min(3, index.ntotal)
         distances, indices = index.search(query_vector, k)
-        
+
         max_sim = float(np.max(distances[0]))
-        
+
         # Threshold: 0.92 as requested
         if max_sim > 0.92:
             score = 1.0
-            signals = [f"Near-duplicate of a previously analyzed PR detected (Similarity: {max_sim:.2f})"]
+            signals = [
+                (
+                    "Near-duplicate of a previously analyzed PR detected "
+                    f"(Similarity: {max_sim:.2f})"
+                )
+            ]
         elif max_sim > 0.80:
             score = 0.5
-            signals = [f"High structural similarity to previous outputs (Similarity: {max_sim:.2f})"]
+            signals = [
+                (
+                    "High structural similarity to previous outputs "
+                    f"(Similarity: {max_sim:.2f})"
+                )
+            ]
         else:
             score = 0.0
-            signals = [f"Unique code signature (Max global similarity: {max_sim:.2f})"]
+            signals = [
+                (
+                    "Unique code signature "
+                    f"(Max global similarity: {max_sim:.2f})"
+                )
+            ]
 
         return DetectorResult(
             name=self.name,

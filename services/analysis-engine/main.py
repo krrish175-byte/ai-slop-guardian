@@ -1,11 +1,18 @@
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
-from routers import analyze, index, health, analytics, challenge, review, trust
+from routers import (  # noqa: E402
+    analyze,
+    index,
+    health,
+    analytics,
+    challenge,
+    review,
+    trust,
+)
 
 app = FastAPI(title="AI Slop Guardian Analysis Engine", version="2.0.0")
 
@@ -31,6 +38,7 @@ async def warmup():
     detector = EnsembleDetector()
     await detector.analyze("warmup text to preload models", "warmup/repo")
     print("Models warmed up and ready")
+
 
 @app.get("/")
 async def root():
