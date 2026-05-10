@@ -23,6 +23,21 @@ class PatternDetector(BaseDetector):
         r"\bIn (summary|conclusion|order to)\b",
         r"\bIt's worth (noting|mentioning)\b",
         r"\bThis approach (ensures|provides|allows|enables)\b",
+
+        # New Phrases
+        r"\bdelve into\b",
+        r"\ba rich tapestry\b",
+        r"\ba testament to\b",
+        r"\bnavigating the (complexities|nuances) of\b",
+        r"\bIt (is|is imperative to|is crucial to) note that\b",
+        r"\bIt is important to (remember|consider)\b",
+        r"\bBy leveraging\b",
+        r"\bIn the realm of\b",
+        r"\bUltimately[,]?\b",
+        r"\bHere is a breakdown of\b",
+        r"\bTo summarize[,]?\b",
+        r"\bAs requested[,]?\b",
+        r"\bThis code snippet\b",
     ]
 
     CODE_PATTERNS = [
