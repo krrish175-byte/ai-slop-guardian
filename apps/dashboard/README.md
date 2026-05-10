@@ -1,73 +1,79 @@
-# React + TypeScript + Vite
+# AI Slop Guardian Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The dashboard is the frontend visual interface for **AI Slop Guardian**, providing repository maintainers with a clear, birds-eye view of AI-generated content (slop) metrics across their projects.
 
-Currently, two official plugins are available:
+Built to run alongside the `analysis-engine`, this dashboard aggregates PR metrics, contributor trust scores, and burnout indicators into actionable insights.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Overview Metrics**: Track the repository's overall "Slop Rate", total PRs scanned, and current threshold limits.
+- **Contributor Trust Graph**: Visualize which contributors have a high trust score vs. those frequently submitting AI-generated code.
+- **Burnout Risk Indicators**: Monitor how much time maintainers are projected to waste reviewing AI slop, calculating an overall maintainer burnout risk score.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+This project is scaffolded with [Vite](https://vitejs.dev/) and uses:
+- **Framework**: React 19 + TypeScript
+- **Styling**: Tailwind CSS v4
+- **Routing**: React Router DOM v7
+- **Charts/Visualizations**: Recharts
+- **Icons**: Lucide React
+- **Testing**: Vitest + React Testing Library
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Prerequisites
+Make sure you have Node.js (v20+) installed. You should ideally run this from the monorepo root via Turborepo, but you can also run it independently.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Navigate to the `apps/dashboard` directory and install dependencies:
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+To start the development server with Hot Module Replacement (HMR):
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+The app will typically be available at `http://localhost:5173`. 
+*Note: Ensure the Python `analysis-engine` is running locally (usually on port `8000`) so the dashboard can fetch real data.*
+
+### Build for Production
+
+To build the project for production:
+
+```bash
+npm run build
+```
+
+This will run the TypeScript compiler and Vite's production build.
+
+### Testing & Linting
+
+To run the unit tests:
+```bash
+npm test
+```
+
+To run ESLint:
+```bash
+npm run lint
+```
+
+## Contributing
+
+We welcome contributions! If you're participating in GSoC or just want to help, check out the `pages` and `components` directories. 
+
+**Good First Issues for the Dashboard:**
+- Enhancing chart tooltips in `TrustGraph.tsx`
+- Adding a dark mode toggle
+- Improving accessibility (ARIA labels) across the metrics cards in `Overview.tsx`
+- Connecting mock components to live `analysis-engine` API endpoints
+
+Please make sure `npm run lint` and `npm test` pass before submitting a Pull Request.
