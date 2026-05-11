@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import type { DashboardStats, PRSummary } from "../api/client";
 import { TrendChart } from "../components/TrendChart";
 import { PRCard } from "../components/PRCard";
+import AIPieChart from "../components/AIBreakdownPieChart";
 import { Shield, BarChart3, Users, Clock, AlertTriangle, GitPullRequest } from "lucide-react";
+
 
 export const Overview: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -111,6 +113,10 @@ export const Overview: React.FC = () => {
           <button className="w-full py-3 border border-slate-700 rounded-xl text-slate-400 text-sm font-medium hover:bg-white/5 transition-colors">
             View All Scans
           </button>
+        </div>
+        <div className="glass p-6 rounded-2xl">
+          <h2 className="text-lg font-bold mb-4">AI Detection Breakdown</h2>
+          <AIPieChart />
         </div>
       </div>
     </div>
