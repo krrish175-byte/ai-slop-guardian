@@ -10,6 +10,7 @@ router = APIRouter()
 ensemble = EnsembleDetector()
 scorer = ContributorScorer()
 
+
 @router.post("/", response_model=AnalyzeResponse)
 async def analyze(request: AnalyzeRequest, db: Session = Depends(get_db)):
     # 1. Run ensemble detection
@@ -18,8 +19,9 @@ async def analyze(request: AnalyzeRequest, db: Session = Depends(get_db)):
         repo_id=request.repo_id,
         history=request.history
     )
-    
-    # 2. Run contributor scoring (placeholder logic - ideally Node.js sends the data)
+
+    # 2. Run contributor scoring
+    # Placeholder logic - ideally Node.js sends the data
     # For now, we use dummy data if not provided
     dummy_contributor_data = {
         "login": request.contributor_login,
@@ -29,11 +31,11 @@ async def analyze(request: AnalyzeRequest, db: Session = Depends(get_db)):
     }
     trust_res = scorer.calculate_trust_score(dummy_contributor_data)
     response.contributor_trust_score = trust_res["score"]
-    
+
     # 3. Save to database
     db_result = AnalysisResult(
         repo_id=request.repo_id,
-        pr_number=0, # Would be sent in a real scenario
+        pr_number=0,  # Would be sent in a real scenario
         author=request.contributor_login,
         overall_score=response.overall_score,
         label=response.label,
@@ -49,5 +51,5 @@ async def analyze(request: AnalyzeRequest, db: Session = Depends(get_db)):
         if isinstance(d, DNADetector):
             d.add_to_index(request.content)
             break
-    
+
     return response

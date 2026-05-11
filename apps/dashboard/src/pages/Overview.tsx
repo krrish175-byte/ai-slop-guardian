@@ -38,7 +38,6 @@ export const Overview: React.FC = () => {
     setTimeout(() => {
       setStats(mockStats);
       setRecentPRs(mockPRs);
-      setLoading(setLoading as any); // just to use setLoading
       setLoading(false);
     }, 1000);
   }, []);

@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-do
 import { Overview } from "./pages/Overview";
 import { Burnout } from "./pages/Burnout";
 import { TrustGraph } from "./pages/TrustGraph";
-import { Shield, LayoutDashboard, ListFilter, Users, Settings, Bell, Zap, Activity } from "lucide-react";
+import { Shield, LayoutDashboard, ListFilter, Users, Settings, Bell, Zap } from "lucide-react";
 
 const Sidebar = () => {
   const location = useLocation();

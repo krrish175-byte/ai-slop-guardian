@@ -20,6 +20,8 @@ export interface PRSummary {
   timestamp: string;
 }
 
+export type RepoAnalysis = Record<string, unknown>;
+
 class DashboardAPI {
   async getStats(): Promise<DashboardStats> {
     const resp = await axios.get(`${API_BASE_URL}/stats/`);
@@ -31,9 +33,9 @@ class DashboardAPI {
     return resp.data;
   }
 
-  async getRepoAnalysis(repoId: string): Promise<any> {
+  async getRepoAnalysis(repoId: string): Promise<RepoAnalysis> {
     const resp = await axios.get(`${API_BASE_URL}/repo/${repoId}/`);
-    return resp.data;
+    return resp.data as RepoAnalysis;
   }
 }
 
