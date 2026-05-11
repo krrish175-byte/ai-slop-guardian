@@ -1,45 +1,93 @@
-import { PieChart, Pie, Label } from 'recharts';
-import { RechartsDevtools } from '@recharts/devtools';
-import type { PRSummary } from '../api/client';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from "recharts";
 
+import type { PRSummary } from "../api/client";
 
-const mockPRs: PRSummary[] = [
-      { id: "1", repo_id: "facebook/react", pr_number: 1234, title: "Refactor core reconciliation engine", author: "ai-bot-99", slop_score: 0.94, label: "ai-slop:high", timestamp: "2 HOURS AGO" },
-      { id: "2", repo_id: "google/zx", pr_number: 567, title: "Add support for custom shell paths", author: "krrish175", slop_score: 0.12, label: "human", timestamp: "5 HOURS AGO" },
-      { id: "3", repo_id: "vercel/next.js", pr_number: 8901, title: "fix: edge runtime memory leak", author: "dev-ninja", slop_score: 0.55, label: "ai-slop:medium", timestamp: "1 DAY AGO" },
-    ];
+type Props = {
+  data: PRSummary[];
+};
 
-const MyPie = () => (
-  <Pie data={mockPRs} dataKey="slop_score" nameKey="label" outerRadius="80%" innerRadius="50%" isAnimationActive={false} />
-);
+const COLORS = {
+  High: "#ef4444",
+  Medium: "#f59e0b",
+  human: "#10b981",
+};
 
+export default function AIBreakdownPieChart({ data }: Props) {
+  const counts = {
+    High: 0,
+    Medium: 0,
+    human: 0,
+  };
 
-export default function AIPieChart() {
+  data.forEach((pr) => {
+    if (pr.label.includes("high")) {
+      counts.High += 1;
+    } else if (pr.label.includes("medium")) {
+      counts.Medium += 1;
+    } else if (pr.label.includes("human")) {
+      counts.human += 1;
+    }
+  });
+
+  const chartData = Object.entries(counts)
+    .map(([name, value]) => ({
+      name,
+      value,
+    }))
+    .filter((item) => item.value > 0);
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        width: '100%',
-        minHeight: '300px',
-        border: '1px solid #ccc',
-        padding: '10px',
-        justifyContent: 'space-around',
-        alignItems: 'stretch',
-      }}
-    >
-      
+    <div className="w-full h-[320px] rounded-2xl p-2">
+      <h2 className="text-white text-xl font-bold mb-4">
+        AI Detection Breakdown
+      </h2>
 
-      <PieChart responsive style={{ height: 'calc(100% - 30px)', width: '33%', maxWidth: '300px', aspectRatio: 1 }}>
-        <MyPie />
-        <Label position="center" fill="#666">
-          maxWidth: &#39;300px&#39;
-        </Label>
-        <RechartsDevtools />
-      </PieChart>
+      <ResponsiveContainer width="100%" height="85%">
+        <PieChart>
+          <Pie
+            data={chartData}
+            dataKey="value"
+            nameKey="name"
+            innerRadius={50}
+            outerRadius={90}
+            paddingAngle={2}
+            stroke="transparent"
+          >
+            {chartData.map((entry) => (
+              <Cell
+                key={entry.name}
+                fill={COLORS[entry.name as keyof typeof COLORS]}
+              />
+            ))}
+          </Pie>
 
-      
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "#111827",
+              border: "1px solid #2a2d45",
+              borderRadius: "10px",
+              color: "#fff",
+            }}
+            labelStyle={{ color: "#fff" }}
+          />
+
+          <Legend
+            verticalAlign="bottom"
+            iconType="circle"
+            wrapperStyle={{
+              fontSize: "14px",
+              paddingTop: "10px",
+            }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
     </div>
-    );
-
+  );
 }
