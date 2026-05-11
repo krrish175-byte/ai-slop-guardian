@@ -44,7 +44,7 @@ export default function AIBreakdownPieChart({ data }: Props) {
     .filter((item) => item.value > 0);
 
   return (
-    <div className="w-full h-[320px] rounded-2xl p-2">
+    <div className="w-full h-[330px] rounded-3xl p-2">
       <h2 className="text-white text-xl font-bold mb-4">
         AI Detection Breakdown
       </h2>

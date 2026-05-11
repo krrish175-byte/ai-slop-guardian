@@ -3,6 +3,7 @@ import type { DashboardStats, PRSummary } from "../api/client";
 import { TrendChart } from "../components/TrendChart";
 import { PRCard } from "../components/PRCard";
 import AIBreakdownPieChart from "../components/AIBreakdownPieChart";
+import FlaggedPRBarChart from "../components/FlagedPRBarChart";
 import {
   Shield,
   BarChart3,
@@ -134,8 +135,11 @@ export const Overview: React.FC = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+        {/* left  */}
         {/* Chart Section */}
+        <div className="lg:col-span-2 space-y-15">
         <div className="lg:col-span-2 glass p-8 rounded-3xl">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-xl font-bold flex items-center gap-2">
@@ -148,34 +152,42 @@ export const Overview: React.FC = () => {
           </div>
           <TrendChart data={stats?.trend || []} />
         </div>
-
-        {/* AI Breakdown Pie Chart */}
-        <div className="glass p-6 rounded-2xl">
-          <AIBreakdownPieChart data={recentPRs|| []} />
+        <div>
+          <FlaggedPRBarChart />
         </div>
 
-        {/* Live Feed */}
-        <div className="space-y-6">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <GitPullRequest size={20} className="text-brand-secondary" /> Recent
-            Scans
-          </h2>
-          <div className="space-y-4">
-            {recentPRs.map((pr) => (
-              <PRCard
-                key={pr.id}
-                title={pr.title}
-                author={pr.author}
-                repoId={pr.repo_id}
-                prNumber={pr.pr_number}
-                score={pr.slop_score}
-                timestamp={pr.timestamp}
-              />
-            ))}
+        </div>
+        
+        {/* right */}
+        <div className="space-y-10">
+          {/* AI Breakdown Pie Chart */}
+          <div className="glass p-6 rounded-3xl">
+            <AIBreakdownPieChart data={recentPRs || []} />
           </div>
-          <button className="w-full py-3 border border-slate-700 rounded-xl text-slate-400 text-sm font-medium hover:bg-white/5 transition-colors">
-            View All Scans
-          </button>
+
+            {/* Recent Scans */}
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <GitPullRequest size={20} className="text-brand-secondary" />{" "}
+              Recent Scans
+            </h2>
+            <div className="space-y-4">
+              {recentPRs.map((pr) => (
+                <PRCard
+                  key={pr.id}
+                  title={pr.title}
+                  author={pr.author}
+                  repoId={pr.repo_id}
+                  prNumber={pr.pr_number}
+                  score={pr.slop_score}
+                  timestamp={pr.timestamp}
+                />
+              ))}
+            </div>
+            <button className="w-full py-3 border border-slate-700 rounded-xl text-slate-400 text-sm font-medium hover:bg-white/5 transition-colors">
+              View All Scans
+            </button>
+          </div>
         </div>
       </div>
     </div>
