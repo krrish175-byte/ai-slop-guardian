@@ -153,7 +153,7 @@ export const Overview: React.FC = () => {
           <TrendChart data={stats?.trend || []} />
         </div>
         <div>
-          <FlaggedPRBarChart />
+          <FlaggedPRBarChart data={stats?.trend || []} />
         </div>
 
         </div>
