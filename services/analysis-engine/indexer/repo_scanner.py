@@ -17,11 +17,11 @@ class RepoScanner:
 
     def process_files(self, repo_id: str, files: List[Dict]) -> List[Dict]:
         all_chunks = []
+
         for f in files:
             path = f.get("path", "")
             content = f.get("content", "")
 
-            # Basic filtering
             if any(skip in path for skip in self.skip_dirs):
                 continue
 
@@ -30,16 +30,18 @@ class RepoScanner:
 
             if not content:
                 continue
-            
+
             features = {}
             if path.endswith(".java"):
                 parser = JavaParser()
                 features = parser.extract_features(content)
 
             chunks = self.chunker.chunk_file(path, content, repo_id)
+
             for chunk in chunks:
                 if features:
                     chunk["features"] = features
+
             all_chunks.extend(chunks)
 
         return all_chunks
