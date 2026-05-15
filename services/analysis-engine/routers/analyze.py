@@ -40,6 +40,7 @@ async def analyze(request: AnalyzeRequest, db: Session = Depends(get_db)):
         overall_score=response.overall_score,
         label=response.label,
         confidence=response.confidence,
+        contributor_trust_score=response.contributor_trust_score,
         details=[d.dict() for d in response.detectors]
     )
     db.add(db_result)

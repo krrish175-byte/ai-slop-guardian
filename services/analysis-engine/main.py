@@ -13,6 +13,7 @@ from routers import (  # noqa: E402
     review,
     trust,
 )
+from db.database import ensure_schema  # noqa: E402
 
 app = FastAPI(title="AI Slop Guardian Analysis Engine", version="2.0.0")
 
@@ -34,6 +35,7 @@ app.include_router(trust.router, prefix="/trust", tags=["trust"])
 
 @app.on_event("startup")
 async def warmup():
+    ensure_schema()
     from detectors.ensemble import EnsembleDetector
     detector = EnsembleDetector()
     await detector.analyze("warmup text to preload models", "warmup/repo")

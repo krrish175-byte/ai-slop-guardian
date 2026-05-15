@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from db.models import TrustRelationship, AnalysisResult
 from pydantic import BaseModel
+from typing import Optional
 
 router = APIRouter()
 
@@ -58,3 +59,33 @@ async def get_trust_graph(repo_id: str, db: Session = Depends(get_db)):
     ]
 
     return {"nodes": nodes, "links": links}
+
+
+@router.get("/history/{username:path}")
+async def get_trust_history(
+    username: str,
+    repo_id: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
+    query = db.query(AnalysisResult).filter(AnalysisResult.author == username)
+    if repo_id:
+        query = query.filter(AnalysisResult.repo_id == repo_id)
+
+    results = query.order_by(AnalysisResult.timestamp.asc()).all()
+
+    history = [
+        {
+            "date": result.timestamp.isoformat() if result.timestamp else None,
+            "trust_score": result.contributor_trust_score,
+            "repo_id": result.repo_id,
+            "pr_number": result.pr_number,
+        }
+        for result in results
+        if result.timestamp is not None
+    ]
+
+    return {
+        "username": username,
+        "history": history,
+        "count": len(history),
+    }
