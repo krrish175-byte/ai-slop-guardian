@@ -27,18 +27,22 @@ export interface AnalyzeResponse {
 export async function analyzeContent(req: AnalyzeRequest): Promise<AnalyzeResponse> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 60000);
-  const response = await fetch(`${ANALYSIS_ENGINE_URL}/analyze/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(req),
-    signal: controller.signal,
-  });
+  
+  try {
+    const response = await fetch(`${ANALYSIS_ENGINE_URL}/analyze/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req),
+      signal: controller.signal,
+    });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Analysis engine error ${response.status}: ${text}`);
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Analysis engine error ${response.status}: ${text}`);
+    }
+
+    return await response.json() as AnalyzeResponse;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  clearTimeout(timeout);
-  return response.json() as Promise<AnalyzeResponse>;
 }

@@ -60,7 +60,12 @@ export async function handleSlashCommand(context: Context<"issue_comment.created
 
     case "status":
       try {
-        const statusRes = await fetch(`${ANALYSIS_ENGINE_URL}/analytics/${owner}/${repo}/slop-rate`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const statusRes = await fetch(`${ANALYSIS_ENGINE_URL}/analytics/${owner}/${repo}/slop-rate`, {
+          signal: controller.signal
+        }).finally(() => clearTimeout(timeoutId));
+        
         const statusData = await statusRes.json() as any;
         await octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
           owner,

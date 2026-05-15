@@ -18,7 +18,7 @@ export async function triggerChallenge(
       pr_title: pr.title,
       repo_id: repoId,
       pr_number: pr.number
-    });
+    }, { timeout: 30000 });
 
     const { questions, challenge_id } = response.data;
 

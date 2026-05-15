@@ -41,7 +41,7 @@ export async function handleSurge(context: Context<"pull_request.opened">): Prom
         repo_id: repoId,
         contributor_login: contributorLogin,
         event_type: surgeType
-      });
+      }, { timeout: 10000 });
     } catch (err: any) {
       context.log.error(`Failed to log surge event to analysis engine: ${err.message}`);
     }
@@ -50,7 +50,7 @@ export async function handleSurge(context: Context<"pull_request.opened">): Prom
     if (process.env.SURGE_WEBHOOK_URL) {
        await axios.post(process.env.SURGE_WEBHOOK_URL, {
          text: `🚨 ${surgeType.toUpperCase()} in ${repoId} by ${contributorLogin}`
-       }).catch(() => {});
+       }, { timeout: 10000 }).catch(() => {});
     }
 
     return true; // Surge was handled

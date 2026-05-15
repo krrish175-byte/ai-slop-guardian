@@ -60,9 +60,13 @@ export async function handlePullRequest(
     if (result.overall_score > 0.5) {
       context.log.info(`Generating smart review for PR #${pr.number}...`);
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000);
+        
         const reviewRes = await fetch(ANALYSIS_ENGINE_URL + "/review/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
           body: JSON.stringify({
             diff: diff || "",
             pr_title: pr.title,
@@ -70,28 +74,29 @@ export async function handlePullRequest(
             repo_id: owner + "/" + repo,
             slop_score: result.overall_score
           })
-        });
+        }).finally(() => clearTimeout(timeoutId));
+        
         context.log.info(`Smart review API response status: ${reviewRes.status}`);
 
         let reviewData;
         try {
-            reviewData = await reviewRes.json() as any;
+          reviewData = await reviewRes.json() as any;
         } catch (e: any) {
-            throw new Error(`Failed to parse review JSON: ${e.message}`);
+          throw new Error(`Failed to parse review JSON: ${e.message}`);
         }
-        
+
         const review = reviewData.review || "";
-        
+
         if (review.trim()) {
           const reviewComment = [
-              "## 🤖 Guardian AI Review",
-              "",
-              review,
-              "",
-              "---",
-              "*This review was auto-generated. A human maintainer should verify before acting on it.*"
+            "## 🤖 Guardian AI Review",
+            "",
+            review,
+            "",
+            "---",
+            "*This review was auto-generated. A human maintainer should verify before acting on it.*"
           ].join("\n");
-          
+
           await octokit.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
             owner, repo, issue_number: pr.number,
             body: reviewComment
@@ -120,20 +125,20 @@ export async function handlePullRequest(
             pr_title: pr.title,
             repo_id: owner + "/" + repo
           })
-        });
-        clearTimeout(timeoutId);
+        }).finally(() => clearTimeout(timeoutId));
+        
         context.log.info(`Challenge API response status: ${challengeRes.status}`);
 
         let challenge;
         try {
-            challenge = await challengeRes.json() as any;
+          challenge = await challengeRes.json() as any;
         } catch (e: any) {
-            throw new Error(`Failed to parse challenge JSON: ${e.message}`);
+          throw new Error(`Failed to parse challenge JSON: ${e.message}`);
         }
-        
+
         const questions = challenge.questions || [];
         if (questions.length === 0) {
-            throw new Error("No questions returned from challenge endpoint");
+          throw new Error("No questions returned from challenge endpoint");
         }
 
         const challengeComment = [
