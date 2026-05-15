@@ -37,11 +37,7 @@ class RepoScanner:
                 features = parser.extract_features(content)
 
             chunks = self.chunker.chunk_file(path, content, repo_id)
-
-            for chunk in chunks:
-                if features:
-                    chunk["features"] = features
-
             all_chunks.extend(chunks)
 
         return all_chunks
+    
