@@ -1,17 +1,17 @@
-from pydantic import BaseModel
-from typing import Optional, List
+from pydantic import BaseModel, Field
+from typing import Optional, List, Literal
 
 
 class AnalyzeRequest(BaseModel):
     # The text to analyze (PR body, diff, comment)
-    content: str
+    content: str = Field(..., min_length=10, max_length=1000000)
     # "pr_body" | "diff" | "issue" | "comment"
-    content_type: str
+    content_type: Literal["pr_body", "diff", "issue", "comment"]
     # "{owner}/{repo}"
-    repo_id: str
-    contributor_login: str
-    contributor_id: int
-    history: List[str] = []
+    repo_id: str = Field(..., pattern=r"^[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+$")
+    contributor_login: str = Field(..., min_length=1, max_length=100)
+    contributor_id: int = Field(..., gt=0)
+    history: List[str] = Field(default_factory=list, max_items=50)
 
 
 class DetectorResult(BaseModel):
