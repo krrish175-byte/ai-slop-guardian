@@ -1,9 +1,10 @@
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from utils.limiter import limiter
+from utils.security import verify_api_key
 
 load_dotenv()
 
@@ -29,12 +30,12 @@ app.add_middleware(
 )
 
 app.include_router(health.router, prefix="/health", tags=["health"])
-app.include_router(analyze.router, prefix="/analyze", tags=["analyze"])
-app.include_router(index.router, prefix="/index-repo", tags=["index"])
-app.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
-app.include_router(challenge.router, prefix="/challenge", tags=["challenge"])
-app.include_router(review.router, prefix="/review", tags=["review"])
-app.include_router(trust.router, prefix="/trust", tags=["trust"])
+app.include_router(analyze.router, prefix="/analyze", tags=["analyze"], dependencies=[Depends(verify_api_key)])
+app.include_router(index.router, prefix="/index-repo", tags=["index"], dependencies=[Depends(verify_api_key)])
+app.include_router(analytics.router, prefix="/analytics", tags=["analytics"], dependencies=[Depends(verify_api_key)])
+app.include_router(challenge.router, prefix="/challenge", tags=["challenge"], dependencies=[Depends(verify_api_key)])
+app.include_router(review.router, prefix="/review", tags=["review"], dependencies=[Depends(verify_api_key)])
+app.include_router(trust.router, prefix="/trust", tags=["trust"], dependencies=[Depends(verify_api_key)])
 
 
 @app.on_event("startup")
