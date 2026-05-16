@@ -1,20 +1,21 @@
-from fastapi import APIRouter, Request
-from utils.limiter import limiter
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends
+from pydantic import BaseModel, Field
 from typing import List
 import os
 import uuid
 from datetime import datetime, timedelta
 from groq import Groq
+from utils.limiter import limiter
+from utils.security import verify_api_key
 
 router = APIRouter()
 client = Groq(api_key=os.getenv("GROQ_API_KEY", "placeholder"))
 
 
 class ChallengeRequest(BaseModel):
-    diff: str
-    pr_title: str
-    repo_id: str
+    diff: str = Field(..., min_length=1)
+    pr_title: str = Field(..., min_length=1)
+    repo_id: str = Field(..., min_length=3)
 
 
 class ChallengeResponse(BaseModel):
@@ -23,9 +24,10 @@ class ChallengeResponse(BaseModel):
     expires_at: str
 
 
-@router.post("/generate", response_model=ChallengeResponse)
-@limiter.limit("5/minute")
-async def generate_challenge(req: ChallengeRequest, request: Request):
+@router.post("/generate", response_model=ChallengeResponse, dependencies=[Depends(verify_api_key)])
+@limiter.limit("3/minute")
+async def generate_challenge(req: ChallengeRequest):
+
     prompt = (
         f"Given this code diff from a PR titled \"{req.pr_title}\", "
         "generate exactly 3 specific technical questions that only the person "
