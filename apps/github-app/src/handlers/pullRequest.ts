@@ -5,6 +5,8 @@ import { handleSurge } from "./surgeHandler";
 
 const comments = new CommentBuilder();
 const ANALYSIS_ENGINE_URL = process.env.ANALYSIS_ENGINE_URL || "http://localhost:8000";
+const GUARDIAN_API_KEY = process.env.GUARDIAN_API_KEY || "default_secret";
+
 
 export async function handlePullRequest(
   context: Context<"pull_request.opened" | "pull_request.synchronize">
@@ -64,8 +66,9 @@ export async function handlePullRequest(
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
-            "X-Guardian-API-Key": process.env.ANALYSIS_API_KEY || ""
+            "X-API-KEY": GUARDIAN_API_KEY
           },
+
           body: JSON.stringify({
             diff: diff || "",
             pr_title: pr.title,
@@ -118,8 +121,9 @@ export async function handlePullRequest(
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
-            "X-Guardian-API-Key": process.env.ANALYSIS_API_KEY || ""
+            "X-API-KEY": GUARDIAN_API_KEY
           },
+
           signal: controller.signal,
           body: JSON.stringify({
             diff: diff.substring(0, 2000),
