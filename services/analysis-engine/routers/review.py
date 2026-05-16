@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Request
-from utils.limiter import limiter
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Depends
+from pydantic import BaseModel, Field
 import os
 from groq import Groq
 import json
+from utils.limiter import limiter
+from utils.security import verify_api_key
 
 router = APIRouter()
 
@@ -16,16 +17,17 @@ def _get_client() -> Groq | None:
 
 
 class ReviewRequest(BaseModel):
-    diff: str
-    pr_title: str
-    pr_body: str
-    repo_id: str
-    slop_score: float
+    diff: str = Field(..., min_length=1)
+    pr_title: str = Field(..., min_length=1)
+    pr_body: str = Field(default="")
+    repo_id: str = Field(..., min_length=3)
+    slop_score: float = Field(..., ge=0.0, le=1.0)
 
 
-@router.post("/generate")
-@limiter.limit("5/minute")
-async def generate_review(request: ReviewRequest, req: Request):
+@router.post("/generate", dependencies=[Depends(verify_api_key)])
+@limiter.limit("3/minute")
+async def generate_review(request: ReviewRequest):
+
     client = _get_client()
     if client is None:
         raise HTTPException(
