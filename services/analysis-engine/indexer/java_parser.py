@@ -9,7 +9,7 @@ class JavaParser:
             r'(public|private|protected)?\s*'
             r'(static\s+)?'
             r'(final\s+)?'
-            r'(\w+<.*?>|\w+)'
+            r'(\w+.*?>|\w+)'
             r'\s+(\w+)\s*\('
         )
 
@@ -24,12 +24,19 @@ class JavaParser:
         constructors = re.findall(constructor_pattern, content)
         imports = re.findall(import_pattern, content)
 
-        extracted_methods = [m[4] for m in methods]
-        extracted_constructors = [c[1] for c in constructors]
+        extracted_methods = [
+            m[4] for m in methods
+        ]
+
+        extracted_constructors = [
+            c[1] for c in constructors
+        ]
 
         return {
             "classes": classes,
-            "methods": extracted_methods + extracted_constructors,
+            "methods": (
+                extracted_methods + extracted_constructors
+            ),
             "imports": imports
         }
-    
+        
