@@ -62,7 +62,10 @@ export async function handlePullRequest(
       try {
         const reviewRes = await fetch(ANALYSIS_ENGINE_URL + "/review/generate", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "X-Guardian-API-Key": process.env.ANALYSIS_API_KEY || ""
+          },
           body: JSON.stringify({
             diff: diff || "",
             pr_title: pr.title,
@@ -113,7 +116,10 @@ export async function handlePullRequest(
 
         const challengeRes = await fetch(ANALYSIS_ENGINE_URL + "/challenge/generate", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "X-Guardian-API-Key": process.env.ANALYSIS_API_KEY || ""
+          },
           signal: controller.signal,
           body: JSON.stringify({
             diff: diff.substring(0, 2000),

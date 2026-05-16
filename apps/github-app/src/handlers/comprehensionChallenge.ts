@@ -18,6 +18,10 @@ export async function triggerChallenge(
       pr_title: pr.title,
       repo_id: repoId,
       pr_number: pr.number
+    }, {
+      headers: {
+        "X-Guardian-API-Key": process.env.ANALYSIS_API_KEY || ""
+      }
     });
 
     const { questions, challenge_id } = response.data;
