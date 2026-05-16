@@ -2,6 +2,7 @@ import { Context } from "probot";
 import axios from "axios";
 
 const ANALYSIS_ENGINE_URL = process.env.ANALYSIS_ENGINE_URL || "http://localhost:8000";
+const GUARDIAN_API_KEY = process.env.GUARDIAN_API_KEY || "default_secret";
 
 export async function triggerChallenge(
   context: Context<"pull_request.opened" | "pull_request.synchronize">,
@@ -19,10 +20,9 @@ export async function triggerChallenge(
       repo_id: repoId,
       pr_number: pr.number
     }, {
-      headers: {
-        "X-Guardian-API-Key": process.env.ANALYSIS_API_KEY || ""
-      }
+      headers: { "X-API-KEY": GUARDIAN_API_KEY }
     });
+
 
     const { questions, challenge_id } = response.data;
 
