@@ -16,7 +16,7 @@ type Props = {
 };
 export default function FlaggedPRBarChart({ data }: Props) {
   return (
-    <div className="w-full h-[460px] glass rounded-3xl border border-[#2a2d45] bg-[#1b1d2b] p-5">
+    <div className="w-full h-[460px] glass rounded-3xl border border-[#2a2d45] bg-[#1b1d2b] p-5 ">
       <h2 className="text-white text-xl font-semibold mb-4">Flagged PRs</h2>
 
       <ResponsiveContainer width="100%" height="85%">

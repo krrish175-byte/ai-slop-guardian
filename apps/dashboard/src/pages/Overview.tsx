@@ -85,7 +85,7 @@ export const Overview: React.FC = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
-      <header className="flex justify-between items-end">
+      <header className="flex justify-between items-end ">
         <div>
           <h1 className="text-4xl font-black gradient-text">Overview</h1>
           <p className="text-slate-400 mt-2">
@@ -98,7 +98,7 @@ export const Overview: React.FC = () => {
       </header>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {[
           {
             label: "Total Analyzed",
@@ -137,10 +137,14 @@ export const Overview: React.FC = () => {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-        {/* left  */}
         {/* Chart Section */}
-        <div className="lg:col-span-2 space-y-15">
-        <div className="lg:col-span-2 glass p-8 rounded-3xl">
+        
+        {/* Left  */}
+
+        <div className="xl:col-span-2 space-y-16 min-w-0 overflow-hidden">
+
+          {/* Slop Trends Line Chart */}
+        <div className=" glass p-8 rounded-3xl">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-xl font-bold flex items-center gap-2">
               <Clock size={20} className="text-brand-primary" /> Slop Trends
@@ -152,14 +156,16 @@ export const Overview: React.FC = () => {
           </div>
           <TrendChart data={stats?.trend || []} />
         </div>
-        <div>
+
+        {/* Flagged PR Bar Chart */}
+        <div >
           <FlaggedPRBarChart data={stats?.trend || []} />
         </div>
 
         </div>
         
-        {/* right */}
-        <div className="space-y-10">
+        {/* Right */}
+        <div className="space-y-10 min-w-0 relative z-0">
           {/* AI Breakdown Pie Chart */}
           <div className="glass p-6 rounded-3xl">
             <AIBreakdownPieChart data={recentPRs || []} />
