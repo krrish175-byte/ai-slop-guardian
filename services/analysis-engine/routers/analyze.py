@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from models.schemas import AnalyzeRequest, AnalyzeResponse
 from detectors.ensemble import EnsembleDetector
 from scorer.contributor import ContributorScorer
 from db.database import get_db
 from db.models import AnalysisResult
+from utils.limiter import limiter
 
 router = APIRouter()
 ensemble = EnsembleDetector()
@@ -12,7 +13,8 @@ scorer = ContributorScorer()
 
 
 @router.post("/", response_model=AnalyzeResponse)
-async def analyze(request: AnalyzeRequest, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+async def analyze(request: AnalyzeRequest, req: Request, db: Session = Depends(get_db)):
     # 1. Run ensemble detection
     response = await ensemble.analyze(
         content=request.content,

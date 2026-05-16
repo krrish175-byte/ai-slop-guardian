@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+from utils.limiter import limiter
 from pydantic import BaseModel
 from typing import List
 import os
@@ -23,7 +24,8 @@ class ChallengeResponse(BaseModel):
 
 
 @router.post("/generate", response_model=ChallengeResponse)
-async def generate_challenge(req: ChallengeRequest):
+@limiter.limit("5/minute")
+async def generate_challenge(req: ChallengeRequest, request: Request):
     prompt = (
         f"Given this code diff from a PR titled \"{req.pr_title}\", "
         "generate exactly 3 specific technical questions that only the person "

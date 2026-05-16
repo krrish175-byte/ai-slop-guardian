@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+from utils.limiter import limiter
 from pydantic import BaseModel
 import os
 from groq import Groq
@@ -23,7 +24,8 @@ class ReviewRequest(BaseModel):
 
 
 @router.post("/generate")
-async def generate_review(request: ReviewRequest):
+@limiter.limit("5/minute")
+async def generate_review(request: ReviewRequest, req: Request):
     client = _get_client()
     if client is None:
         raise HTTPException(
