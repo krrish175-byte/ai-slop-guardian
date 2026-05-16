@@ -1,22 +1,16 @@
 import os
 from fastapi import Security, HTTPException, status
-from fastapi.security.api_key import APIKeyHeader
+from fastapi.security import APIKeyHeader
 
-API_KEY_NAME = "X-Guardian-API-Key"
+API_KEY_NAME = "X-API-KEY"
+API_KEY = os.getenv("GUARDIAN_API_KEY", "default_secret")
+
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
-def verify_api_key(api_key: str = Security(api_key_header)):
-    expected_key = os.getenv("ANALYSIS_API_KEY")
-    if not expected_key:
-        # If no key is configured in environment, we might want to allow 
-        # for development, but for hardening we should require it.
-        # Let's assume for this task we REQUIRE it.
-        return "unprotected-dev"
-        
-    if api_key == expected_key:
-        return api_key
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or missing API Key",
-        )
+async def verify_api_key(api_key_header: str = Security(api_key_header)):
+    if api_key_header == API_KEY:
+        return api_key_header
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Could not validate credentials"
+    )
