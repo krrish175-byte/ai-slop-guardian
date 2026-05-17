@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from typing import List
 import os
 from groq import Groq
 import json
@@ -18,6 +19,7 @@ class ReviewRequest(BaseModel):
     diff: str
     pr_title: str
     pr_body: str
+    pr_labels: List[str] = []
     repo_id: str
     slop_score: float
 
@@ -30,8 +32,17 @@ async def generate_review(request: ReviewRequest):
             status_code=503,
             detail="GROQ_API_KEY is not configured",
         )
+    labels_str = ", ".join(request.pr_labels) if request.pr_labels else "None"
+
     system_prompt = (
-        "You are a senior code reviewer for an open source project."
+        "You are a senior code reviewer for an open source project.\n\n"
+        f"PR Context - Title: {request.pr_title} | "
+        f"Labels: {labels_str}\n\n"
+        "CRITICAL RULE:\n"
+        "If the PR title starts with 'chore', 'refactor', or 'style', "
+        "or contains linting-related labels, you must assume the removal "
+        "of unused imports and type changes are intentional refactors. "
+        "Do not flag them as Potential Bugs."
     )
     user_prompt = (
         "Review this PR diff. Be specific about:\n"
