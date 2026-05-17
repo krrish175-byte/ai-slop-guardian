@@ -29,7 +29,7 @@ pydantic_core==2.41.5
 Pygments==2.20.0
 python-dotenv==1.2.2
 PyYAML==6.0.3
-regex==2026.4.4
+regex==2026.5.9
 rich==15.0.0
 safetensors==0.7.0
 scikit-learn==1.8.0
