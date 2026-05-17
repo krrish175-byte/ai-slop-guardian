@@ -6,7 +6,7 @@ click==8.3.2
 distro==1.9.0
 faiss-cpu==1.13.2
 fastapi==0.135.3
-filelock==3.25.2
+filelock==3.29.0
 fsspec==2026.3.0
 groq==1.1.2
 h11==0.16.0
