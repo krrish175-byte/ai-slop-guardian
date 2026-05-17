@@ -73,6 +73,7 @@ export async function handlePullRequest(
             diff: diff || "",
             pr_title: pr.title,
             pr_body: pr.body || "",
+            pr_labels: pr.labels.map((label: any) => label.name),
             repo_id: owner + "/" + repo,
             slop_score: result.overall_score
           })
@@ -183,3 +184,4 @@ export async function handlePullRequest(
     context.log.error("Error processing PR #" + pr.number + ": " + err.message);
   }
 }
+ 
