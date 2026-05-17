@@ -25,7 +25,7 @@ networkx==3.6.1
 numpy==2.4.4
 packaging==26.0
 pydantic==2.12.5
-pydantic_core==2.41.5
+pydantic_core==2.46.4
 Pygments==2.20.0
 python-dotenv==1.2.2
 PyYAML==6.0.3
