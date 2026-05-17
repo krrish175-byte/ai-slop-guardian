@@ -3,12 +3,16 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from db.database import get_db
 from db.models import AnalysisResult
+from utils.limiter import limiter
+from utils.security import verify_api_key
 
 router = APIRouter()
 
 
-@router.get("/{repo_id:path}/slop-rate")
+@router.get("/{repo_id:path}/slop-rate", dependencies=[Depends(verify_api_key)])
+@limiter.limit("10/minute")
 async def get_slop_rate(repo_id: str, db: Session = Depends(get_db)):
+
     thirty_days_ago = datetime.utcnow() - timedelta(days=30)
 
     # Query results for this repo in last 30 days
@@ -44,8 +48,10 @@ async def get_slop_rate(repo_id: str, db: Session = Depends(get_db)):
     }
 
 
-@router.get("/{repo_id:path}/burnout")
+@router.get("/{repo_id:path}/burnout", dependencies=[Depends(verify_api_key)])
+@limiter.limit("10/minute")
 async def get_burnout_stats(repo_id: str, db: Session = Depends(get_db)):
+
     thirty_days_ago = datetime.utcnow() - timedelta(days=30)
 
     # Query results for this repo in last 30 days

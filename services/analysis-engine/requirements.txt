@@ -53,3 +53,5 @@ uvicorn==0.44.0
 pytest==8.3.2
 pytest-asyncio==0.24.0
 flake8==7.0.0
+slowapi==0.1.9
+

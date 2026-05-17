@@ -13,8 +13,14 @@ from routers import (  # noqa: E402
     review,
     trust,
 )
+from utils.limiter import limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
 
 app = FastAPI(title="AI Slop Guardian Analysis Engine", version="2.0.0")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 
 app.add_middleware(
     CORSMiddleware,
