@@ -17,7 +17,7 @@
     "@types/express": "^5.0.6",
     "axios": "^1.15.0",
     "express": "^5.2.1",
-    "groq-sdk": "^0.9.1",
+    "groq-sdk": "^1.2.0",
     "probot": "^14.3.2",
     "smee-client": "^5.0.0"
   },
