@@ -1,4 +1,3 @@
-from indexer.java_parser import JavaParser
 from typing import List, Dict
 from indexer.chunker import Chunker
 
@@ -31,13 +30,7 @@ class RepoScanner:
             if not content:
                 continue
 
-            features = {}
-            if path.endswith(".java"):
-                parser = JavaParser()
-                features = parser.extract_features(content)
-
             chunks = self.chunker.chunk_file(path, content, repo_id)
             all_chunks.extend(chunks)
 
         return all_chunks
-    
