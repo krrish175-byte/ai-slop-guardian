@@ -2,7 +2,7 @@ annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.13.0
 certifi==2026.2.25
-click==8.3.2
+click==8.4.0
 distro==1.9.0
 faiss-cpu==1.13.2
 fastapi==0.135.3
