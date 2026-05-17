@@ -27,7 +27,7 @@ export const SlopScore: React.FC<SlopScoreProps> = ({ score, size = "md" }) => {
       <div className={`${getSizeClasses()} ${getColor()} tabular-nums`}>
         {percentage}%
       </div>
-      <div className="text-xs uppercase tracking-widest text-slate-400 mt-1">
+      <div className="hidden sm:block text-xs uppercase tracking-widest text-slate-400 mt-1">
         AI Probability
       </div>
       {size === "lg" && (
