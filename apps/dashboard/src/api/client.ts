@@ -20,6 +20,19 @@ export interface PRSummary {
   timestamp: string;
 }
 
+export interface TrustScorePoint {
+  date: string;
+  trust_score: number;
+  repo_id?: string;
+  pr_number?: number;
+}
+
+export interface ContributorTrustHistory {
+  username: string;
+  history: TrustScorePoint[];
+  count: number;
+}
+
 export type RepoAnalysis = Record<string, unknown>;
 
 class DashboardAPI {
@@ -36,6 +49,11 @@ class DashboardAPI {
   async getRepoAnalysis(repoId: string): Promise<RepoAnalysis> {
     const resp = await axios.get(`${API_BASE_URL}/repo/${repoId}/`);
     return resp.data as RepoAnalysis;
+  }
+
+  async getContributorTrustHistory(username: string): Promise<ContributorTrustHistory> {
+    const resp = await axios.get(`${API_BASE_URL}/trust/history/${encodeURIComponent(username)}`);
+    return resp.data as ContributorTrustHistory;
   }
 }
 

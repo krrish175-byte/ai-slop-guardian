@@ -13,6 +13,7 @@ class AnalysisResult(Base):
     overall_score = Column(Float)
     label = Column(String)
     confidence = Column(Float)
+    contributor_trust_score = Column(Integer, default=0)
     details = Column(JSON)  # Store detector results
     timestamp = Column(DateTime, default=datetime.utcnow)
 
