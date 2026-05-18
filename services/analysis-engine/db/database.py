@@ -17,16 +17,19 @@ Base = declarative_base()
 def ensure_schema() -> None:
     with engine.begin() as connection:
         inspector = inspect(connection)
-        if "analysis_results" not in inspector.get_table_names():
+
+        table_names = inspector.get_table_names()
+        if "analysis_results" not in table_names:
             return
 
-        column_names = {column["name"] for column in inspector.get_columns("analysis_results")}
+        columns = inspector.get_columns("analysis_results")
+        column_names = {col["name"] for col in columns}
         if "contributor_trust_score" not in column_names:
-            connection.execute(
-                text(
-                    "ALTER TABLE analysis_results ADD COLUMN contributor_trust_score INTEGER DEFAULT 0"
-                )
+            sql = (
+                "ALTER TABLE analysis_results "
+                "ADD COLUMN contributor_trust_score INTEGER DEFAULT 0"
             )
+            connection.execute(text(sql))
 
 
 def get_db():
