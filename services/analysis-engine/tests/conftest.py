@@ -1,32 +1,25 @@
-import pytest
-from unittest.mock import patch
-import sys
 import os
+import sys
 
-# Add the parent directory to sys.path to ensure modules can be found
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import pytest
 
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..")
+    )
+)
 
-@pytest.fixture(autouse=True)
-def mock_ensemble():
-    """Globally mock EnsembleDetector to avoid loading models."""
-    # Prevent __init__ from instantiating heavy detectors.
-    with patch(
-        "detectors.ensemble.EnsembleDetector.__init__",
-        return_value=None,
-    ):
-        yield
+from db.database import Base, engine
+import db.models
 
 
-@pytest.fixture(autouse=True)
-def mock_warmup():
-    """Globally mock warmup in main to prevent analysis on import."""
-    with patch("main.warmup", return_value=None):
-        yield
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_db():
 
+    # Create tables using app's actual engine
+    Base.metadata.create_all(bind=engine)
 
-@pytest.fixture(autouse=True)
-def mock_db():
-    """Globally mock the database to avoid connection issues."""
-    with patch("db.database.get_db", return_value=None):
-        yield
+    yield
+
+    # Cleanup
+    Base.metadata.drop_all(bind=engine)
