@@ -1,41 +1,33 @@
-import re
+import javalang
 
 
 class JavaParser:
     def extract_features(self, content: str):
-        classes = re.findall(r'class\s+(\w+)', content)
+        try:
+            tree = javalang.parse.parse(content)
+        except Exception:
+            return {
+                "classes": [],
+                "methods": [],
+                "imports": []
+            }
 
-        method_pattern = (
-            r'(public|private|protected)?\s*'
-            r'(static\s+)?'
-            r'(final\s+)?'
-            r'(\w+.*?>|\w+)'
-            r'\s+(\w+)\s*\('
-        )
+        classes = []
+        methods = []
+        imports = []
 
-        constructor_pattern = (
-            r'(public|private|protected)?\s+'
-            r'(\w+)\s*\('
-        )
+        for path, node in tree:
+            if isinstance(node, javalang.tree.ClassDeclaration):
+                classes.append(node.name)
 
-        import_pattern = r'import\s+([\w\.\*]+);'
+            elif isinstance(node, javalang.tree.MethodDeclaration):
+                methods.append(node.name)
 
-        methods = re.findall(method_pattern, content)
-        constructors = re.findall(constructor_pattern, content)
-        imports = re.findall(import_pattern, content)
-
-        extracted_methods = [
-            m[4] for m in methods
-        ]
-
-        extracted_constructors = [
-            c[1] for c in constructors
-        ]
+            elif isinstance(node, javalang.tree.Import):
+                imports.append(node.path)
 
         return {
             "classes": classes,
-            "methods": (
-                extracted_methods + extracted_constructors
-            ),
+            "methods": methods,
             "imports": imports
         }
