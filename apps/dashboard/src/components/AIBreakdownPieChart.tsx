@@ -1,5 +1,4 @@
 import { PieChart, Pie, Label } from "recharts";
-import { RechartsDevtools } from "@recharts/devtools";
 import type { PRSummary } from "../api/client";
 
 const mockPRs: PRSummary[] = [
@@ -73,7 +72,6 @@ export default function AIPieChart() {
         <Label position="center" fill="#666">
           maxWidth: &#39;300px&#39;
         </Label>
-        <RechartsDevtools />
       </PieChart>
     </div>
   );

@@ -45,7 +45,7 @@ const Sidebar = ({
       {/* CHANGED: mobile overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -54,11 +54,11 @@ const Sidebar = ({
       <aside
         className={`
           fixed lg:sticky top-0 left-0 z-50
-          w-64 h-screen
+          w-[260px] h-screen
           border-r border-white/10
-          flex flex-col p-6
-          bg-[#020617]
-          transition-transform duration-300
+          flex flex-col px-5 py-6
+          bg-[#020617] 
+          transition-transform duration-300 ease-in-out
 
           ${
             mobileOpen
@@ -67,17 +67,17 @@ const Sidebar = ({
           }
         `}
       >
-        <div className="flex items-center gap-3 mb-12">
+        <div className="flex items-center gap-3 mb-10">
           <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-primary/40">
             <Shield size={24} />
           </div>
 
-          <span className="font-black text-xl tracking-tighter uppercase italic">
+          <span className="font-black text-lg tracking-tight uppercase italic leading-none">
             Slop Guardian
           </span>
         </div>
 
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1 space-y-3">
           {menu.map((item) => {
             const active = location.pathname === item.path;
 
@@ -89,15 +89,15 @@ const Sidebar = ({
                 // CHANGED: closes sidebar after clicking item on mobile
                 onClick={() => setMobileOpen(false)}
 
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                className={`flex items-center gap-3 w-full px-4 py-3 rounded-2xl transition-all duration-200 ${
                   active
-                    ? "bg-brand-primary text-white shadow-lg shadow-brand-primary/20"
-                    : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    ? "bg-brand-primary text-white shadow-lg shadow-brand-primary/25"
+                    : "text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1"
                 }`}
               >
                 {item.icon}
 
-                <span className="font-bold text-sm">
+                <span className="font-semibold text-sm leading-none">
                   {item.name}
                 </span>
               </Link>
@@ -105,8 +105,8 @@ const Sidebar = ({
           })}
         </nav>
 
-        <div className="mt-auto p-4 bg-white/5 rounded-2xl flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-slate-700"></div>
+        <div className="mt-auto p-4 bg-white/5 rounded-2xl flex items-center gap-3 border border-white/5">
+          <div className="w-10 h-10 rounded-full bg-slate-700 shrink-0"></div>
 
           <div className="flex-1 min-w-0">
             <p className="text-xs font-bold truncate">
@@ -139,19 +139,19 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
       <main className="flex-1 p-8 lg:p-12 max-w-7xl">
 
-        <div className="flex justify-between lg:justify-end mb-8">
+        <div className="flex items-center justify-between lg:justify-end mb-10">
 
           {/* CHANGED: mobile menu button */}
           <button
             onClick={() => setMobileOpen(true)}
-            className="lg:hidden p-2 bg-white/5 rounded-xl border border-white/10"
+            className="lg:hidden h-11 w-11 flex items-center justify-center bg-white/5 rounded-xl border border-white/10"
           >
             <Menu size={20} />
           </button>
 
-          <button className="p-2 relative bg-white/5 rounded-full text-slate-400 hover:text-white transition-colors border border-white/10">
+          <button className="h-11 w-11 flex items-center justify-center relative bg-white/5 rounded-xl text-slate-400 hover:text-white transition-colors border border-white/10">
             <Bell size={20} />
-            <span className="absolute top-0 right-0 w-2 h-2 bg-brand-secondary rounded-full"></span>
+            <span className="absolute top-1 right-1 w-2 h-2 bg-brand-secondary rounded-full"></span>
           </button>
         </div>
         {children}
