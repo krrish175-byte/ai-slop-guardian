@@ -28,5 +28,9 @@
   "homepage": "https://github.com/krrish175-byte/ai-slop-guardian#readme",
   "devDependencies": {
     "turbo": "^2.9.6"
+  },
+  "dependencies": {
+    "@recharts/devtools": "^0.0.13",
+    "recharts": "^3.8.1"
   }
 }

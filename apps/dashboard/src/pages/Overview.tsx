@@ -3,6 +3,7 @@ import type { DashboardStats, PRSummary } from "../api/client";
 import { TrendChart } from "../components/TrendChart";
 import { PRCard } from "../components/PRCard";
 import { Shield, BarChart3, Users, Clock, AlertTriangle, GitPullRequest } from "lucide-react";
+import AIPieChart from "../components/AIBreakdownPieChart";
 
 export const Overview: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -112,6 +113,7 @@ export const Overview: React.FC = () => {
           </button>
         </div>
       </div>
+      <div className="glass p-8 rounded-3xl"><AIPieChart /></div>
     </div>
   );
 };
