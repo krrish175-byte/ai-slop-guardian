@@ -10,6 +10,8 @@ import {
 import { Overview } from "./pages/Overview";
 import { Burnout } from "./pages/Burnout";
 import { TrustGraph } from "./pages/TrustGraph";
+import { MaintainerAnalytics } from "./pages/MaintainerAnalytics";
+import { BarChart3 } from "lucide-react";
 
 import {
   Shield,
@@ -38,6 +40,8 @@ const Sidebar = ({
     { name: "Burnout Center", path: "/burnout", icon: <Zap size={20} /> },
     { name: "Live Queue", path: "/queue", icon: <ListFilter size={20} /> },
     { name: "Settings", path: "/settings", icon: <Settings size={20} /> },
+  { name: "Maintainer Analytics",path: "/maintainer-analytics", icon: <BarChart3 size={20} />,
+}
   ];
 
   return (
@@ -170,6 +174,8 @@ function App() {
           <Route path="/burnout" element={<Burnout />} />
           <Route path="/queue" element={<Overview />} />
           <Route path="/settings" element={<Overview />} />
+          <Route path="/maintainer-analytics" element={<MaintainerAnalytics />}
+/>
         </Routes>
       </Layout>
     </BrowserRouter>
