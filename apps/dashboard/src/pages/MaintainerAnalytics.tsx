@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Clock,
   ShieldCheck,
@@ -7,6 +7,7 @@ import {
   Bot,
   BarChart3,
   Zap,
+  AlertTriangle,
 } from "lucide-react";
 
 import {
@@ -22,35 +23,15 @@ import {
   Area,
 } from "recharts";
 
+import { fetchMaintainerAnalytics } from "../services/analyticsService";
+import type { SlopRateResponse, BurnoutResponse } from "../services/analyticsService";
+
 /* -------------------------------------------------------------------------- */
 /*                                RAW MOCK DATA                               */
 /* -------------------------------------------------------------------------- */
 
-const REPOSITORY_ANALYTICS = {
-  totalPullRequests: 154,
-
-  flaggedAiPullRequests: 98,
-
-  autoClosedPullRequests: 79,
-
-  manuallyClosedPullRequests: 11,
-
-  challengesSent: 98,
-
-  challengesPassed: 62,
-
-  totalContributors: 112,
-
-  trustedContributors: 89,
-
-  estimatedMinutesPerReview: 15,
-
-  workingHoursPerDay: 8,
-
-  analyticsPeriodDays: 30,
-};
-
-const AI_VS_HUMAN_TRENDS = {
+// Mock trends left as fallback for UI consistency if API doesn't provide historical timeseries yet
+const FALLBACK_AI_VS_HUMAN_TRENDS = {
   "30 Days": [
     { label: "Day 1", ai: 12, human: 34 },
     { label: "Day 5", ai: 20, human: 28 },
@@ -72,7 +53,7 @@ const AI_VS_HUMAN_TRENDS = {
   ],
 };
 
-const MONTHLY_WORKLOAD_DATA = [
+const FALLBACK_MONTHLY_WORKLOAD_DATA = [
   { month: "Jan", flaggedCount: 48 },
   { month: "Feb", flaggedCount: 64 },
   { month: "Mar", flaggedCount: 72 },
@@ -85,19 +66,6 @@ const MONTHLY_WORKLOAD_DATA = [
 /*                              METRIC FUNCTIONS                              */
 /* -------------------------------------------------------------------------- */
 
-const calculateHoursSaved = (
-  autoClosed: number,
-  manuallyClosed: number,
-  minutesPerReview: number
-) => {
-  return Number(
-    (
-      ((autoClosed + manuallyClosed) * minutesPerReview) /
-      60
-    ).toFixed(1)
-  );
-};
-
 const calculateWorkingDaysSaved = (
   hoursSaved: number,
   workingHoursPerDay: number
@@ -107,50 +75,8 @@ const calculateWorkingDaysSaved = (
   );
 };
 
-const calculateChallengeSuccessRate = (
-  passed: number,
-  total: number
-) => {
-  if (total === 0) return 0;
-
-  return Math.round((passed / total) * 100);
-};
-
-const calculateAiSlopRate = (
-  flagged: number,
-  total: number
-) => {
-  if (total === 0) return 0;
-
-  return Number(((flagged / total) * 100).toFixed(1));
-};
-
-const calculateEfficiencyGain = (
-  autoClosed: number,
-  flagged: number
-) => {
-  if (flagged === 0) return 0;
-
-  return Math.round((autoClosed / flagged) * 100);
-};
-
-const calculateTrustRate = (
-  trusted: number,
-  total: number
-) => {
-  if (total === 0) return 0;
-
-  return Math.round((trusted / total) * 100);
-};
-
-const calculateAnnualProjection = (
-  monthlyHoursSaved: number
-) => {
-  return Math.round(monthlyHoursSaved * 12);
-};
-
 const buildMonthlyHoursData = (
-  workloadData: typeof MONTHLY_WORKLOAD_DATA,
+  workloadData: typeof FALLBACK_MONTHLY_WORKLOAD_DATA,
   minutesPerReview: number
 ) => {
   return workloadData.map((entry) => ({
@@ -255,58 +181,98 @@ type TimeFilter = "30 Days" | "90 Days";
 export const MaintainerAnalytics: React.FC = () => {
   const [timeFilter, setTimeFilter] =
     useState<TimeFilter>("30 Days");
+  
+  const [data, setData] = useState<{
+    slopRate: SlopRateResponse;
+    burnout: BurnoutResponse;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const hoursSaved = calculateHoursSaved(
-    REPOSITORY_ANALYTICS.autoClosedPullRequests,
-    REPOSITORY_ANALYTICS.manuallyClosedPullRequests,
-    REPOSITORY_ANALYTICS.estimatedMinutesPerReview
-  );
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        // Using owner/repo as placeholder as per requirement/backend example
+        const result = await fetchMaintainerAnalytics("owner/repo");
+        setData(result);
+        setError(null);
+      } catch (err) {
+        console.error("Analytics fetch error:", err);
+        setError("Unable to connect to the analytics engine. Please ensure the backend is running at http://localhost:8000.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const workingDaysSaved =
-    calculateWorkingDaysSaved(
-      hoursSaved,
-      REPOSITORY_ANALYTICS.workingHoursPerDay
-    );
+    loadData();
+  }, []);
 
-  const challengeSuccessRate =
-    calculateChallengeSuccessRate(
-      REPOSITORY_ANALYTICS.challengesPassed,
-      REPOSITORY_ANALYTICS.challengesSent
-    );
-
-  const aiSlopRate = calculateAiSlopRate(
-    REPOSITORY_ANALYTICS.flaggedAiPullRequests,
-    REPOSITORY_ANALYTICS.totalPullRequests
-  );
-
-  const efficiencyGain =
-    calculateEfficiencyGain(
-      REPOSITORY_ANALYTICS.autoClosedPullRequests,
-      REPOSITORY_ANALYTICS.flaggedAiPullRequests
-    );
-
-  const trustRate = calculateTrustRate(
-    REPOSITORY_ANALYTICS.trustedContributors,
-    REPOSITORY_ANALYTICS.totalContributors
-  );
-
-  const annualProjection =
-    calculateAnnualProjection(hoursSaved);
+  const hoursSaved = data?.burnout.hours_wasted_month ?? 0;
+  const workingDaysSaved = calculateWorkingDaysSaved(hoursSaved, 8);
+  const flaggedAiPullRequests = data?.slopRate.slop_count ?? 0;
+  const aiSlopRate = data?.slopRate.score ?? 0;
+  const annualProjection = data?.burnout.projected_hours_annual ?? 0;
+  
+  // These metrics are not yet available in the backend analytics endpoints
+  // but kept for UI consistency with fallback values
+  const challengeSuccessRate = 0;
+  const challengesPassed = 0;
+  const challengesSent = 0;
+  const trustedContributors = 0;
+  const trustRate = 0;
+  const efficiencyGain = 0;
 
   const workloadHoursData = useMemo(
     () =>
       buildMonthlyHoursData(
-        MONTHLY_WORKLOAD_DATA,
-        REPOSITORY_ANALYTICS.estimatedMinutesPerReview
+        FALLBACK_MONTHLY_WORKLOAD_DATA,
+        15 // estimated minutes per review
       ),
     []
   );
 
   const protectionStatus =
-    challengeSuccessRate >= 60 &&
-    efficiencyGain >= 75
-      ? "ACTIVE"
-      : "AT RISK";
+    data?.burnout.burnout_risk.toUpperCase() === "CRITICAL" || 
+    data?.burnout.burnout_risk.toUpperCase() === "HIGH"
+      ? "AT RISK"
+      : "ACTIVE";
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 animate-in fade-in duration-500">
+        <div className="relative">
+          <div className="w-20 h-20 border-4 border-slate-800 rounded-full"></div>
+          <div className="w-20 h-20 border-4 border-brand-primary rounded-full border-t-transparent animate-spin absolute top-0 left-0"></div>
+        </div>
+        <p className="text-slate-400 font-bold tracking-widest text-xs uppercase animate-pulse">
+          Synchronizing Repository Intelligence...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 animate-in zoom-in-95 duration-300">
+        <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center text-red-500">
+          <AlertTriangle size={40} />
+        </div>
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-black text-white">Analytics Offline</h2>
+          <p className="text-slate-400 max-w-md mx-auto leading-relaxed">
+            {error}
+          </p>
+        </div>
+        <button 
+          onClick={() => window.location.reload()}
+          className="glass px-8 py-3 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-white/5 transition-all text-brand-primary border border-brand-primary/20"
+        >
+          Re-establish Connection
+        </button>
+      </div>
+    );
+  }
 
   const statCards = [
     {
@@ -324,10 +290,9 @@ export const MaintainerAnalytics: React.FC = () => {
     {
       label: "AI PRs Flagged",
 
-      value:
-        REPOSITORY_ANALYTICS.flaggedAiPullRequests,
+      value: flaggedAiPullRequests,
 
-      description: `${aiSlopRate}% of all submissions`,
+      description: `${aiSlopRate.toFixed(1)}% slop rate detected`,
 
       icon: <Bot size={18} aria-hidden />,
 
@@ -339,7 +304,7 @@ export const MaintainerAnalytics: React.FC = () => {
 
       value: `${challengeSuccessRate}%`,
 
-      description: `${REPOSITORY_ANALYTICS.challengesPassed}/${REPOSITORY_ANALYTICS.challengesSent} users passed verification`,
+      description: `${challengesPassed}/${challengesSent} users passed verification`,
 
       icon: (
         <ShieldCheck size={18} aria-hidden />
@@ -351,8 +316,7 @@ export const MaintainerAnalytics: React.FC = () => {
     {
       label: "Trusted Contributors",
 
-      value:
-        REPOSITORY_ANALYTICS.trustedContributors,
+      value: trustedContributors,
 
       description: `${trustRate}% contributor trust rate`,
 
@@ -395,7 +359,7 @@ export const MaintainerAnalytics: React.FC = () => {
       ),
 
       description:
-        "Repository protection status derived from moderation efficiency and contributor verification rates.",
+        `Repository protection status is currently ${protectionStatus.toLowerCase()} based on burnout risk analysis.`,
     },
   ];
 
@@ -502,7 +466,7 @@ export const MaintainerAnalytics: React.FC = () => {
           >
             <LineChart
               data={
-                AI_VS_HUMAN_TRENDS[
+                FALLBACK_AI_VS_HUMAN_TRENDS[
                   timeFilter
                 ]
               }
