@@ -1,20 +1,28 @@
-FROM node:20-slim
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json .
-COPY turbo.json .
-COPY apps/dashboard/package.json ./apps/dashboard/
+COPY package.json package-lock.json turbo.json ./
+COPY apps/dashboard/package.json ./apps/dashboard/package.json
 
-RUN npm install
+RUN npm ci
 
-COPY apps/dashboard ./apps/dashboard/
+COPY apps/dashboard ./apps/dashboard
 
 WORKDIR /app/apps/dashboard
 RUN npm run build
 
-# We'll use a simple static server or just serve with vite preview for now
-RUN npm install -g serve
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+RUN npm install -g serve@14
+
+COPY --from=builder --chown=node:node /app/apps/dashboard/dist ./dist
+
+USER node
+
 EXPOSE 5173
 
 CMD ["serve", "-s", "dist", "-l", "5173"]
