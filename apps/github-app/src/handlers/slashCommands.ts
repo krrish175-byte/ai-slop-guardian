@@ -153,9 +153,12 @@ export async function handleSlashCommand(context: Context<"issue_comment.created
             ? "ai-slop:medium"
             : "human";
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
         const summaryRes = await fetch(`${ANALYSIS_ENGINE_URL}/review/summary`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
           body: JSON.stringify({
             overall_score,
             label,
@@ -163,6 +166,7 @@ export async function handleSlashCommand(context: Context<"issue_comment.created
             contributor_trust_score,
           }),
         });
+        clearTimeout(timeoutId);
 
         let summaryData;
         try {
