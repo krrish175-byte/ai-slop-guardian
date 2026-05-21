@@ -74,10 +74,12 @@ async def test_get_trust_history_returns_chronological_points():
         response = await get_trust_history("alice", db=db)
         assert response["username"] == "alice"
         assert response["count"] == 3
-        assert [point["trust_score"] for point in response["history"]] == [40, 55, 65]
+        scores = [point["trust_score"] for point in response["history"]]
+        assert scores == [40, 55, 65]
 
         filtered = await get_trust_history("alice", repo_id="org/repo", db=db)
         assert filtered["count"] == 2
-        assert [point["pr_number"] for point in filtered["history"]] == [10, 11]
+        pr_numbers = [point["pr_number"] for point in filtered["history"]]
+        assert pr_numbers == [10, 11]
     finally:
         db.close()
