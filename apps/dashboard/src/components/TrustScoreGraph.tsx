@@ -29,6 +29,13 @@ export const TrustScoreGraph: React.FC<TrustScoreGraphProps> = ({ username }) =>
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!username.trim()) {
+      setPoints([]);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     let isMounted = true;
 
     const loadTrustHistory = async () => {

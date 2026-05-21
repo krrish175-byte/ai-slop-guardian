@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Users, Search, Filter } from "lucide-react";
 import { TrustScoreGraph } from "../components/TrustScoreGraph";
+import { useDebounce } from "../hooks/useDebounce";
 
 export const TrustGraph: React.FC = () => {
   const [selectedContributor, setSelectedContributor] = useState("krrish175");
+  const debouncedContributor = useDebounce(selectedContributor, 300);
 
   return (
     <div className="space-y-8 animate-in zoom-in-95 duration-700">
@@ -31,7 +33,7 @@ export const TrustGraph: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-3">
-            <TrustScoreGraph username={selectedContributor} />
+            <TrustScoreGraph username={debouncedContributor} />
         </div>
 
         <div className="space-y-6">
