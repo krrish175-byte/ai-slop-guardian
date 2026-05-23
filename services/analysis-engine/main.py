@@ -12,6 +12,7 @@ from routers import (  # noqa: E402
     challenge,
     review,
     trust,
+    issues,
 )
 
 app = FastAPI(title="AI Slop Guardian Analysis Engine", version="2.0.0")
@@ -30,6 +31,7 @@ app.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 app.include_router(challenge.router, prefix="/challenge", tags=["challenge"])
 app.include_router(review.router, prefix="/review", tags=["review"])
 app.include_router(trust.router, prefix="/trust", tags=["trust"])
+app.include_router(issues.router, prefix="/issues", tags=["issues"])
 
 
 @app.on_event("startup")

@@ -3,6 +3,8 @@ import { setupLabels } from "./services/labelManager";
 import { handlePullRequest } from "./handlers/pullRequest";
 import { handleIssueOpened } from "./handlers/issues";
 import { handleCommentCreated } from "./handlers/comments";
+import { handleIssueOpenedOrEdited, handleIssueComment } from "./handlers/issues_co_maintainer";
+import { handleWorkflowRunRequested } from "./handlers/workflows";
 import { setupBadgeRoutes } from "./routes/badge";
 
 export default (app: Probot) => {
@@ -26,5 +28,8 @@ export default (app: Probot) => {
 
   app.on(["pull_request.opened", "pull_request.synchronize"], handlePullRequest);
   app.on("issues.opened", handleIssueOpened);
+  app.on(["issues.opened", "issues.edited"], handleIssueOpenedOrEdited);
   app.on("issue_comment.created", handleCommentCreated);
+  app.on("issue_comment.created", handleIssueComment);
+  app.on("workflow_run.requested", handleWorkflowRunRequested);
 };

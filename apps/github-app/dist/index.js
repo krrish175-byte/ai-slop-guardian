@@ -4,6 +4,8 @@ const labelManager_1 = require("./services/labelManager");
 const pullRequest_1 = require("./handlers/pullRequest");
 const issues_1 = require("./handlers/issues");
 const comments_1 = require("./handlers/comments");
+const issues_co_maintainer_1 = require("./handlers/issues_co_maintainer");
+const workflows_1 = require("./handlers/workflows");
 const badge_1 = require("./routes/badge");
 exports.default = (app) => {
     app.log.info("AI Slop Guardian is starting up...");
@@ -24,5 +26,8 @@ exports.default = (app) => {
     });
     app.on(["pull_request.opened", "pull_request.synchronize"], pullRequest_1.handlePullRequest);
     app.on("issues.opened", issues_1.handleIssueOpened);
+    app.on(["issues.opened", "issues.edited"], issues_co_maintainer_1.handleIssueOpenedOrEdited);
     app.on("issue_comment.created", comments_1.handleCommentCreated);
+    app.on("issue_comment.created", issues_co_maintainer_1.handleIssueComment);
+    app.on("workflow_run.requested", workflows_1.handleWorkflowRunRequested);
 };

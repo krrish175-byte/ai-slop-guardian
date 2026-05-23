@@ -47,3 +47,32 @@ class IndexRepoRequest(BaseModel):
     github_token: str
     # [{path, content, language}]
     files: List[dict]
+
+
+class IssueEvaluateRequest(BaseModel):
+    title: str
+    body: str
+    repo_id: str
+
+
+class IssueEvaluateResponse(BaseModel):
+    verdict: str  # "valid" | "clarify" | "invalid" | "duplicate"
+    difficulty: str  # "level:beginner" | "level:intermediate" | "level:advanced" | "level:critical"
+    labels: List[str]  # e.g. ["frontend", "backend", "typescript"]
+    feedback: str  # Markdown feedback message (clarification, suggested files, or closing remarks)
+    relevant_files: List[str] = []
+
+
+class ProposalEvaluateRequest(BaseModel):
+    issue_title: str
+    issue_body: str
+    candidate_login: str
+    proposal_text: str
+    repo_id: str
+
+
+class ProposalEvaluateResponse(BaseModel):
+    score: int  # 1 to 10 rating
+    verdict: str  # "assign" | "clarify"
+    feedback: str  # Explanation of rating and what they should provide next if clarify
+
