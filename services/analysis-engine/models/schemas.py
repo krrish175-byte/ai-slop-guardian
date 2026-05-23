@@ -57,9 +57,11 @@ class IssueEvaluateRequest(BaseModel):
 
 class IssueEvaluateResponse(BaseModel):
     verdict: str  # "valid" | "clarify" | "invalid" | "duplicate"
-    difficulty: str  # "level:beginner" | "level:intermediate" | "level:advanced" | "level:critical"
+    # difficulty: level:beginner | level:intermediate | etc.
+    difficulty: str
     labels: List[str]  # e.g. ["frontend", "backend", "typescript"]
-    feedback: str  # Markdown feedback message (clarification, suggested files, or closing remarks)
+    # markdown feedback message (clarification or closing remarks)
+    feedback: str
     relevant_files: List[str] = []
 
 
@@ -74,5 +76,5 @@ class ProposalEvaluateRequest(BaseModel):
 class ProposalEvaluateResponse(BaseModel):
     score: int  # 1 to 10 rating
     verdict: str  # "assign" | "clarify"
-    feedback: str  # Explanation of rating and what they should provide next if clarify
-
+    # Explanation of rating and subsequent steps if clarify
+    feedback: str
