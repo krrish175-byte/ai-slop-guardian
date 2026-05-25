@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.env
+.env.*
+
+# Python
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.egg-info
+**/.pytest_cache
