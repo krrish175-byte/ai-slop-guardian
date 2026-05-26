@@ -2,6 +2,7 @@ from typing import List, Dict
 from indexer.chunker import Chunker
 import ast
 
+
 class PythonASTVisitor(ast.NodeVisitor):
     def __init__(self):
         self.functions = []
@@ -27,6 +28,8 @@ class PythonASTVisitor(ast.NodeVisitor):
     def visit_ImportFrom(self, node):
         if node.module:
             self.imports.append(node.module)
+
+
 class RepoScanner:
     def __init__(self):
         self.chunker = Chunker()
