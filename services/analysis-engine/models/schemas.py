@@ -1,17 +1,18 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List
 
 
 class AnalyzeRequest(BaseModel):
     # The text to analyze (PR body, diff, comment)
-    content: str
+    content: str = Field(..., min_length=1, description="Content to analyze")
     # "pr_body" | "diff" | "issue" | "comment"
-    content_type: str
+    content_type: str = Field(..., pattern="^(pr_body|diff|issue|comment)$")
     # "{owner}/{repo}"
-    repo_id: str
-    contributor_login: str
-    contributor_id: int
-    history: List[str] = []
+    repo_id: str = Field(..., min_length=3)
+    contributor_login: str = Field(..., min_length=1)
+    contributor_id: int = Field(..., gt=0)
+    history: List[str] = Field(default_factory=list)
+
 
 
 class DetectorResult(BaseModel):
