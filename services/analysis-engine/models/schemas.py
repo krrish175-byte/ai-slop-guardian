@@ -1,17 +1,17 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 
 
 class AnalyzeRequest(BaseModel):
     # The text to analyze (PR body, diff, comment)
-    content: str
+    content: str = Field(..., max_length=100000, description="The text content to analyze. Max 100k chars to prevent memory exhaustion.")
     # "pr_body" | "diff" | "issue" | "comment"
-    content_type: str
+    content_type: str = Field(..., max_length=50)
     # "{owner}/{repo}"
-    repo_id: str
-    contributor_login: str
+    repo_id: str = Field(..., max_length=200)
+    contributor_login: str = Field(..., max_length=100)
     contributor_id: int
-    history: List[str] = []
+    history: List[str] = Field(default=[], max_length=100)
 
 
 class DetectorResult(BaseModel):

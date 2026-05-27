@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 load_dotenv()
 
@@ -14,8 +16,11 @@ from routers import (  # noqa: E402
     trust,
     issues,
 )
+from limiter import limiter
 
 app = FastAPI(title="AI Slop Guardian Analysis Engine", version="2.0.0")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
