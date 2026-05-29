@@ -12,6 +12,8 @@ class AnalyzeRequest(BaseModel):
     contributor_login: str
     contributor_id: int
     history: List[str] = []
+    commit_hash: Optional[str] = None
+    diff_hash: Optional[str] = None
 
 
 class DetectorResult(BaseModel):

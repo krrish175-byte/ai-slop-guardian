@@ -5,14 +5,79 @@ from detectors.ensemble import EnsembleDetector
 from scorer.contributor import ContributorScorer
 from db.database import get_db
 from db.models import AnalysisResult
+import hashlib
+import time
+import asyncio
+from typing import Dict, Tuple, Optional
 
 router = APIRouter()
 ensemble = EnsembleDetector()
 scorer = ContributorScorer()
 
 
+class AnalysisCache:
+    def __init__(self, ttl_seconds: int = 300, max_size: int = 1000):
+        self.ttl_seconds = ttl_seconds
+        self.max_size = max_size
+        # key -> (response, expiry_time)
+        self._cache: Dict[str, Tuple[AnalyzeResponse, float]] = {}
+        self._lock = asyncio.Lock()
+
+    async def get(self, key: str) -> Optional[AnalyzeResponse]:
+        async with self._lock:
+            if key not in self._cache:
+                return None
+            response, expiry = self._cache[key]
+            if time.time() > expiry:
+                del self._cache[key]
+                return None
+            return response
+
+    async def set(self, key: str, response: AnalyzeResponse):
+        async with self._lock:
+            now = time.time()
+            # Clean expired items
+            expired_keys = [
+                k for k, (_, exp) in self._cache.items() if now > exp
+            ]
+            for k in expired_keys:
+                del self._cache[k]
+
+            # Enforce max size (FIFO)
+            if len(self._cache) >= self.max_size:
+                first_key = next(iter(self._cache))
+                del self._cache[first_key]
+
+            self._cache[key] = (response, now + self.ttl_seconds)
+
+    async def clear(self):
+        async with self._lock:
+            self._cache.clear()
+
+
+analysis_cache = AnalysisCache(ttl_seconds=300, max_size=1000)
+
+
+def generate_cache_key(request: AnalyzeRequest) -> str:
+    if request.diff_hash:
+        return f"{request.repo_id}:diff:{request.diff_hash}"
+    elif request.commit_hash:
+        return f"{request.repo_id}:commit:{request.commit_hash}"
+    else:
+        # Fallback to SHA256 of content
+        content_bytes = request.content.encode("utf-8")
+        content_sha = hashlib.sha256(content_bytes).hexdigest()
+        return f"{request.repo_id}:content:{content_sha}"
+
+
 @router.post("/", response_model=AnalyzeResponse)
 async def analyze(request: AnalyzeRequest, db: Session = Depends(get_db)):
+    # Check cache
+    cache_key = generate_cache_key(request)
+    cached_response = await analysis_cache.get(cache_key)
+    if cached_response is not None:
+        return cached_response
+
     # 1. Run ensemble detection
     response = await ensemble.analyze(
         content=request.content,
@@ -51,5 +116,8 @@ async def analyze(request: AnalyzeRequest, db: Session = Depends(get_db)):
         if isinstance(d, DNADetector):
             d.add_to_index(request.content)
             break
+
+    # Save to cache
+    await analysis_cache.set(cache_key, response)
 
     return response
