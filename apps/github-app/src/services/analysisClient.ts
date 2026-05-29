@@ -29,7 +29,10 @@ export async function analyzeContent(req: AnalyzeRequest): Promise<AnalyzeRespon
   const timeout = setTimeout(() => controller.abort(), 60000);
   const response = await fetch(`${ANALYSIS_ENGINE_URL}/analyze/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      "X-Guardian-API-Key": process.env.ANALYSIS_API_KEY || ""
+    },
     body: JSON.stringify(req),
     signal: controller.signal,
   });

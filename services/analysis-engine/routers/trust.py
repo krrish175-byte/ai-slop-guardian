@@ -2,19 +2,23 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.database import get_db
 from db.models import TrustRelationship, AnalysisResult
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from utils.limiter import limiter
+from utils.security import verify_api_key
 
 router = APIRouter()
 
 
 class TrustRequest(BaseModel):
-    source_login: str
-    target_login: str
-    relationship_type: str  # "verified_by", "collaborated_on", "mentored_by"
+    source_login: str = Field(..., min_length=1)
+    target_login: str = Field(..., min_length=1)
+    relationship_type: str = Field(..., pattern="^(verified_by|collaborated_on|mentored_by)$")
 
 
-@router.post("/add")
+@router.post("/add", dependencies=[Depends(verify_api_key)])
+@limiter.limit("10/minute")
 async def add_trust(request: TrustRequest, db: Session = Depends(get_db)):
+
     rel = TrustRelationship(
         source_login=request.source_login,
         target_login=request.target_login,
@@ -25,8 +29,10 @@ async def add_trust(request: TrustRequest, db: Session = Depends(get_db)):
     return {"status": "success"}
 
 
-@router.get("/graph/{repo_id:path}")
+@router.get("/graph/{repo_id:path}", dependencies=[Depends(verify_api_key)])
+@limiter.limit("10/minute")
 async def get_trust_graph(repo_id: str, db: Session = Depends(get_db)):
+
     # 1. Get all contributors for this repo from analysis results
     results = (
         db.query(AnalysisResult)

@@ -1,6 +1,7 @@
 # Environment files - NEVER commit these
 .env
 .env.*
+!.env.example
 *.env
 
 # Private keys
