@@ -155,6 +155,8 @@ npm install
 cd services/analysis-engine && pip install -r requirements.txt
 ```
 
+> **Note:** If you are using a Python virtual environment, activate it before installing `requirements.txt` to keep project dependencies isolated from your system Python.
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 **Good first issues:** improving pattern detection phrases, adding new languages to the style indexer, improving the dashboard UI.
