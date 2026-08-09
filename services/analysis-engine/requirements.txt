@@ -33,7 +33,7 @@ regex==2026.4.4
 rich==15.0.0
 safetensors==0.7.0
 scikit-learn==1.8.0
-scipy==1.17.1
+scipy==1.18.0
 sentence-transformers==5.4.0
 setuptools==81.0.0
 shellingham==1.5.4
