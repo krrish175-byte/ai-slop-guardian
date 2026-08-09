@@ -1,5 +1,5 @@
 annotated-doc==0.0.4
-annotated-types==0.7.0
+annotated-types==0.8.0
 anyio==4.13.0
 certifi==2026.2.25
 click==8.3.2
