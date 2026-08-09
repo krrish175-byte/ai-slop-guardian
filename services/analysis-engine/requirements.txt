@@ -31,7 +31,7 @@ python-dotenv==1.2.2
 PyYAML==6.0.3
 regex==2026.4.4
 rich==15.0.0
-safetensors==0.7.0
+safetensors==0.8.0
 scikit-learn==1.8.0
 scipy==1.17.1
 sentence-transformers==5.4.0
